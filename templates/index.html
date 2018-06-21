@@ -1,5 +1,6 @@
 <!doctype html>
-<!--http://www.helloerik.com/the-subtle-magic-behind-why-the-bootstrap-3-grid-works-->
+<!--Use bootstrap cards for player info-->
+<!--Carosel with game play?-->
 <html lang="en">
     <head>
         <title>Draughts</title>
@@ -7,20 +8,28 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     </head>
     <body>
+        <script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+</script>
         <div class="container">
             <div class="row">
-                <h1>Draughts Game</h1>
+                <h1 class="display-2">Draughts Game</h1>
+                <p class='lead'>Play Draughts against the computer or another person locally or online</p>
             </div>
             <div class='row'>
                 <div class='btn-group'>
-                    <button type="button" class="btn btn-primary">1 Player</button>
+                    <a href="" class="btn btn-primary" role="button" data-toggle="tooltip" data-placement="bottom" title="Play against the computer">1 Player</a>
                     <div class='btn-group'>
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="">Online</a>
-                            <a class="dropdown-item" href="">Local</a>
+                            <a class="dropdown-item" href="https://www.google.com" data-toggle="tooltip" data-placement="right" title="Play against another person online">Online</a>
+                            <a class="dropdown-item" href="www.google.co.uk" data-toggle="tooltip" data-placement="right" title = 'Play against someone on the same device'>Local</a>
                         </div>
                     </div>
                 </div>
