@@ -5,3 +5,7 @@ app = Flask(__name__)
 def index():
     # Render the start page
     return render_template('index.html')
+
+@app.route('/start_game', methods = ['POST'])
+def start_game():
+    return

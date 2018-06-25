@@ -13,27 +13,39 @@
     </head>
     <body>
         <script>
-$(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip();
-});
-</script>
+
+        </script>
+
         <div class="container">
             <div class="row">
-                <h1 class="display-2">Draughts Game</h1>
+                <h1 class="display-3">Draughts Game</h1>
+            </div>
+            <div class='row'>
                 <p class='lead'>Play Draughts against the computer or another person locally or online</p>
             </div>
             <div class='row'>
                 <div class='btn-group'>
-                    <a href="" class="btn btn-primary" role="button" data-toggle="tooltip" data-placement="bottom" title="Play against the computer">1 Player</a>
+                    <button class='btn btn-primary' data-toggle ='tooltip' data-placement='bottom' title='Play against the computer' id='1p_button'>1 Player</button>
                     <div class='btn-group'>
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="https://www.google.com" data-toggle="tooltip" data-placement="right" title="Play against another person online">Online</a>
-                            <a class="dropdown-item" href="www.google.co.uk" data-toggle="tooltip" data-placement="right" title = 'Play against someone on the same device'>Local</a>
+                            <button class="dropdown-item" data-toggle="tooltip" data-placement="right" title="Play against another person online" id='2p_online_button'>Online</button>
+                            <button class="dropdown-item" data-toggle="tooltip" data-placement="right" title='Play against someone on the same device' id='2p_local_button'>Local</a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </body>
+    <script type="text/javascript">
+            var start_game = function (type){
+                $.post("/start_game", {game: type});
+            };
+            $(document).ready(function(){
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+            $('#1p_button').click(function(){start_game('1 player')});
+            $('#2p_online_button').click(function(){start_game('2 player online')});
+            $('#2p_local_button').click(function(){start_game('2 player local')});
+    </script>
 </html>
