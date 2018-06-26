@@ -8,4 +8,12 @@ def index():
 
 @app.route('/start_game', methods = ['POST'])
 def start_game():
-    return
+    game = request.form['game']
+    if game == '1 player':
+        return render_template('single.html')
+    elif game == '2 player online':
+        return render_template('online.html')
+    elif game == '2 player local':
+        return render_template('local.html')
+    else:
+        pass
