@@ -18,10 +18,10 @@ def single_player_game():
     return render_template('single.html')
 @app.route('/online')
 def online_game():
-    return '2 player online'
+    return render_template('online.html')
 @app.route('/local')
 def local_game():
-    return '2 player local'
+    return render_template('local.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
