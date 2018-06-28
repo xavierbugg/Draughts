@@ -6,14 +6,22 @@ def index():
     # Render the start page
     return render_template('index.html')
 
-@app.route('/start_game', methods = ['POST'])
+@app.route('/start_game', methods = ['POST', 'GET'])
 def start_game():
-    game = request.form['game']
-    if game == '1 player':
-        return render_template('single.html')
-    elif game == '2 player online':
-        return render_template('online.html')
-    elif game == '2 player local':
-        return render_template('local.html')
-    else:
-        pass
+    try:
+        return request.form['submit']
+    except:
+        print('error')
+        return 'error'
+@app.route('/single_player')
+def single_player_game():
+    return render_template('single.html')
+@app.route('/online')
+def online_game():
+    return '2 player online'
+@app.route('/local')
+def local_game():
+    return '2 player local'
+
+if __name__ == '__main__':
+    app.run(debug=True)
