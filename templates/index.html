@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <!--Use bootstrap cards for player info-->
 <!--Carosel with game play?-->
 <html lang="en">
@@ -21,12 +21,17 @@
             </div>
             <div class='row'>
                 <div class='btn-group'>
-                    <button class='btn btn-primary' data-toggle ='tooltip' data-placement='bottom' title='Play against the computer' id='1p_button'>1 Player</button>
-                    <div class='btn-group'>
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
-                        <div class="dropdown-menu">
-                            <button class="dropdown-item" data-toggle="tooltip" data-placement="right" title="Play against another person online" id='2p_online_button'>Online</button>
-                            <button class="dropdown-item" data-toggle="tooltip" data-placement="right" title='Play against someone on the same device' id='2p_local_button'>Local</a>
+                	<form action='/start_game' method = 'post' id='start_game'></form>
+                        <a class='btn btn-primary' data-toggle ='tooltip' data-placement='bottom' 
+                            title='Play against the computer' id='1p_button' href='{{ url_for("single_player_game") }}'>1 Player</a>
+                        <div class='btn-group'>
+                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item" data-toggle="tooltip" data-placement="right"
+                                    title="Play against another person online" id='2p_online_button' href='{{ url_for("online_game") }}'>Online</a>
+                                <a class="dropdown-item" data-toggle="tooltip" data-placement="right"
+                                    title='Play against someone on the same device' id='2p_local_button' href='{{ url_for("local_game") }}'>Local</a>
+                     
                         </div>
                     </div>
                 </div>
@@ -34,14 +39,8 @@
         </div>
     </body>
     <script type="text/javascript">
-            var start_game = function (type){
-                $.post("/start_game", {game: type});
-            };
             $(document).ready(function(){
                 $('[data-toggle="tooltip"]').tooltip();
             });
-            $('#1p_button').click(function(){start_game('1 player')});
-            $('#2p_online_button').click(function(){start_game('2 player online')});
-            $('#2p_local_button').click(function(){start_game('2 player local')});
     </script>
 </html>
