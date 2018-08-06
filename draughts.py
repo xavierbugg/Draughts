@@ -6,13 +6,6 @@ def index():
     # Render the start page
     return render_template('index.html')
 
-@app.route('/start_game', methods = ['POST', 'GET'])
-def start_game():
-    try:
-        return request.form['submit']
-    except:
-        print('error')
-        return 'error'
 @app.route('/single_player')
 def single_player_game():
     return render_template('single.html')
