@@ -1,13 +1,31 @@
 $(document).ready(function(){
+    var socket = io.connect();
+    socket.on('connect', function() {
+        console.log('connected');
+    });
     var board = ['white man', 'white man', 'white man', 'white man','white man','white man','white man','white man','white man','white man','white man','white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
     var selected = null;
     var canvas = $('#game_board')[0];
     canvas.addEventListener('click', function(event){clicked(event)});
     var context = canvas.getContext('2d');
-    function moveCallback(data, from, to){
+    socket.on('game end', function(data){
+        var message;
+        if (data.result=='black'){
+            message = 'Black Wins!';
+        }
+        else if (data.result=='white'){
+            message = 'White Wins!';
+        }
+        else{
+            message = 'It\'s a draw';
+        }
+        var display_message = '<div class="alert alert-success alert-dismissible fade show"><button type="button" class="close" data-dismiss="alert">&times;</button>'+message+'</div>';
+        $('#info').append(display_message);
+    })
+    socket.on('move response', function (data, from, to){
         console.log('callback')
         console.log(data.result);
-        if (data.result){
+        if (data.result === true){
             for (var i = 0; i < 32; i++){
                 if (data.board[i] != board[i]){
                     var row = Math.floor(i / 4);
@@ -24,6 +42,18 @@ $(document).ready(function(){
                         context.arc(col * 100 + 50, row*  100 + 50, 45, 0, 2 * Math.PI);
                         context.fill();
                         context.stroke();
+                        if (data.board[i].split(' ')[1] == 'king'){
+                            context.font = "50px Times New Roman";
+                            if (data.board[i].split(' ')[0] == 'black'){
+                                context.fillStyle = 'white';
+                            }
+                            else{
+                                context.fillStyle = 'black';
+                            }
+                            context.textAlign = 'center';
+                            context.textBaseline = 'middle'; 
+                            context.fillText('K', col*100+50, row*100+50);
+                        }
                     }
                 }
             }
@@ -32,7 +62,7 @@ $(document).ready(function(){
         else{
             //? do something
         }
-    }
+    });
     function clicked(event){
         var x = event.pageX - canvas.offsetLeft;
         var y = event.pageY - canvas.offsetTop;
@@ -47,8 +77,7 @@ $(document).ready(function(){
         else {
             //check if move is valid
             console.log('Making move from '+selected+ ' to '+pos);
-            console.log({current_pos: selected, new_pos: pos, board: board});
-            $.post('/make_move', {current_pos: selected, new_pos: pos, board: board}, function(data){moveCallback(data, selected, pos)});
+            socket.emit('move request', {current_pos: selected, new_pos: pos});
             selected = null;
         }
 
@@ -82,6 +111,7 @@ $(document).ready(function(){
         }
     }
     drawBoard();
-})
+
+});
 
 
