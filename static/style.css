@@ -1,13 +1,15 @@
 #game_board {
     margin-bottom: 5%;
+    width: 98px;
+    height:98px;
+    margin: auto;
+    display: block;
 }
 
 @media (min-width: 320px) and (min-height:320px){
     #game_board {
         width: 306px;
         height:306px;
-        margin:auto;
-        display: block;
     }
 }
 @media (min-width: 576px) and (min-height: 576px){

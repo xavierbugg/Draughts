@@ -22,14 +22,14 @@
             <div class='row'>
                 <div class='btn-group'>
                         <a class='btn btn-primary' data-toggle ='tooltip' data-placement='bottom' 
-                            title='Play against the computer' id='1p_button' href='{{ url_for("single_player_game") }}'>1 Player</a>
+                            title='Play against the computer' id='1p_button' href='{{ url_for("game", version="single") }}'>1 Player</a>
                         <div class='btn-group'>
                             <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
                             <div class="dropdown-menu">
                                 <a class="dropdown-item" data-toggle="tooltip" data-placement="right"
-                                    title="Play against another person online" id='2p_online_button' href='{{ url_for("online_game") }}'>Online</a>
+                                    title="Play against another person online" id='2p_online_button' href='{{ url_for("game", version="online") }}'>Online</a>
                                 <a class="dropdown-item" data-toggle="tooltip" data-placement="right"
-                                    title='Play against someone on the same device' id='2p_local_button' href='{{ url_for("local_game") }}'>Local</a>
+                                    title='Play against someone on the same device' id='2p_local_button' href='{ url_for("game", version="local") }}'>Local</a>
                      
                         </div>
                     </div>
