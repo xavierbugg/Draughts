@@ -11,10 +11,10 @@ $(document).ready(function(){
     socket.on('game end', function(data){
         var message;
         if (data.result=='black'){
-            message = 'Black Wins!';
+            message = 'You Win!';
         }
         else if (data.result=='white'){
-            message = 'White Wins!';
+            message = 'You lose :(';
         }
         else{
             message = 'It\'s a draw';
@@ -68,7 +68,7 @@ $(document).ready(function(){
         var y = event.pageY - canvas.offsetTop;
         var pos = Math.floor(Math.floor(x / canvas.scrollWidth * 8) / 2) + Math.floor(y / canvas.scrollHeight * 8) * 4
         if (selected === null){
-            if (board[pos] != null){
+            if (board[pos] != null && board[pos].split(' ')[0] == 'black'){
                 console.log('selected: '+pos)
                 selected = pos;
             }
