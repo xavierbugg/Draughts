@@ -30,3 +30,7 @@
         height:1002px;
     }
 }
+.hidden
+{
+   display: none;
+}
