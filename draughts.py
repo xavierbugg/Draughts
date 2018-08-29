@@ -493,7 +493,7 @@ def user_move(data):
     if valid_move(current, new, board, session['move_list'], color) and not (session['version'] == 'single' and color == WHITE):
         make_move(current, new, board)
         emit('move response', {'result': True, 'board': [None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in board]})
-        time.sleep(0.1)
+        socketio.sleep(1)
         if session['version'] == 'single' and not game_has_ended(board) and not is_double_jump(board, session['move_list'], BLACK):
             make_ai_move(board, session['move_list'])
         if game_has_ended(board):
@@ -505,7 +505,6 @@ def user_move(data):
                 emit('game end', {'result': 'draw'})
     else:
         emit('move response', {'result': False})
-
 
 @app.route('/game/<version>')
 def game(version):
@@ -526,4 +525,5 @@ def game(version):
         session['move_list'] = []
         session['board'] = list(start_board)
         return render_template('game.html', version=version)
-socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0', port=5000, log_output=True)
