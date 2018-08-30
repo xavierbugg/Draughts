@@ -1,6 +1,5 @@
 from flask import Flask, render_template, url_for, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
-import socket
 from dataclasses import dataclass
 import random
 import time
