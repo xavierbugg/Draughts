@@ -154,12 +154,12 @@
                 }
             }
         };
-        var rooms = {{rooms}};
+        var rooms = {{ rooms|safe }};
     for (var i = 0; i < rooms.length; i++) {
         $('table').append(
             $('<tr></tr>').append(
                 $('<td></td>').text(rooms[i]), $('<td></td').append(
-                    $('<button class="btn btn-primary">Join</button>').attr('onclick', function () { socket.emit('join room', { 'room': rooms[i] }) })
+                    $('<button class="btn btn-primary">Join</button>').click(function () { socket.emit('join room', { 'room': rooms[i] }) })
                 )
             )
         )

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, session, request
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from dataclasses import dataclass
+import json
 import random
 import time
 BLACK = 0
@@ -12,15 +12,14 @@ WHITE_KING = 3
 rooms = []
 start_board = [WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, None, None, None,
                         None, None, None,  None, None, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN]
-
-@dataclass
+# RIP dataclasses
 class Room():
-    name: str
-    black_id: int
-    white_id: int
-    board: list
-    move_list: list
-
+    def __init__(self, name, black_id, white_id, board, move_list):
+        self.name = name
+        self.black_id = black_id
+        self.white_id = white_id
+        self.board = board
+        self.move_list = move_list
     def is_full(self):
         return bool(self.black_id and self.white_id)
 
@@ -461,7 +460,7 @@ def join_game(data):
 @app.route('/online_game')
 def online_game():
     session['id'] = random.randint(1, 1000)
-    return render_template('online.html', rooms=[room.name for room in rooms], id = session['id'])
+    return render_template('online.html', rooms=json.dumps([room.name for room in rooms]), id = session['id'])
 
 @app.route('/')
 def index():
