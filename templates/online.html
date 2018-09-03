@@ -33,7 +33,12 @@
                 <p class='lead'>Create a game or join someone else's:</p>
             </div>
             <div class='row'>
-                <button class='btn btn-primary' id='createGame'>Create game</button>
+                <div class="input-group">
+                    <span class="input-group-append">
+                        <button class='btn btn-secondary rounded-left' id='createGame'>Create game</button>
+                    </span>
+                    <input type="text" class="form-control" id='nameInput' placeholder='Game name'>
+                </div>
             </div>
             <div class="row">
                 <table>
@@ -236,7 +241,7 @@
                 )
             )
         });
-        $(document).on('click', '#createGame', function () { socket.emit('create room') });
+        $(document).on('click', '#createGame', function () { socket.emit('create room',  $('#nameInput').val())});
     });
 </script>
 

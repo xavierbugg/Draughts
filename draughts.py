@@ -9,6 +9,7 @@ BLACK_MAN = 0
 WHITE_MAN = 1
 BLACK_KING = 2
 WHITE_KING = 3
+BASE_DEPTH = 3
 rooms = []
 start_board = [WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, WHITE_MAN, None, None, None,
                         None, None, None,  None, None, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN, BLACK_MAN]
@@ -80,7 +81,7 @@ def piece_can_move(piece, board, color, moves=[3, 4, 5, 7, 9]):
             return True
     return False
 
-def get_piece_moves(board, move_list, piece, display=False, moves=[3,4,5,7,9]):
+def get_piece_moves(board, move_list, piece, moves=[3,4,5,7,9]):
     new_positions = []
     color = board[piece]%2
     if board[piece]//2:
@@ -90,15 +91,15 @@ def get_piece_moves(board, move_list, piece, display=False, moves=[3,4,5,7,9]):
     elif color == WHITE:
         possible_moves = moves
     for move in possible_moves:
-        if valid_move(piece, piece+move, board, move_list, color, display=display):
+        if valid_move(piece, piece+move, board, move_list, color):
             new_positions.append(piece+move)
     return new_positions
 
-def get_possible_moves(board, move_list, color, display=False, moves=[3,4,5,7,9]):
+def get_possible_moves(board, move_list, color, moves=[3,4,5,7,9]):
     possible_moves = []
     for i in range(32):
         if board[i] is not None and board[i]%2 == color:
-            for new_pos in get_piece_moves(board, move_list, i, display=display):
+            for new_pos in get_piece_moves(board, move_list, i):
                 possible_moves.append([i, new_pos])
     return possible_moves
 
@@ -205,29 +206,19 @@ def valid_forward_move(current, new, board, color):
 
 
     
-def valid_move(current, new, board, move_list, color, display=False):
+def valid_move(current, new, board, move_list, color):
     if is_double_jump(board, move_list, color):
         if current != move_list[-1][-1] or not move_is_jump(current, new):
-            if display:
-                print('should double jump')
             return False
         else:
             # Skip other checks as this would not be considered as the players turn
             return valid_basic_move(current, new, board, color)
     if not is_turn(color, move_list) or is_double_jump(board, move_list, int(not color)):
-        if display:
-            print('not turn')
-            print(is_turn(color, move_list))
-            print(is_double_jump(board, move_list, int(not color)))
         # Its not the players turn
         return False
     elif can_jump(board, color) and not move_is_jump(current, new):
-        if display:
-            print('should jump')
         return False
     else:
-        if display:
-            print('valid_basic_move')
         return valid_basic_move(current, new, board, color)
 
 
@@ -363,16 +354,6 @@ def minimax(depth, move_list, alpha, beta, player):
             alpha = max(alpha, value)
             if alpha >= beta:
                 break
-        if not len(get_children(move_list, board, player)):
-            print('No moves found on: {} white'.format(move_list))
-            print(board)
-            print(can_move(board, player))
-            print(is_double_jump(board, move_list, player))
-            print(is_double_jump(board, move_list, BLACK))
-            print(is_turn(player, move_list))
-            print('Testing moves')
-            print(get_possible_moves(board, move_list, player, display=True))
-            print('Done testing')
         return value
     else:
         value = 99999
@@ -387,31 +368,18 @@ def minimax(depth, move_list, alpha, beta, player):
             beta = min(beta, value)
             if beta <= alpha:
                 break
-        if not len(get_children(move_list, board, player)):
-            print('No moves found on: {} black'.format(move_list))
-            print(board)
-            print(can_move(board, player))
-            print(is_double_jump(board, move_list, player))
-            print(is_turn(player, move_list))
-            print('Testing moves')
-            print(get_possible_moves(board, move_list, player))
-            print('Done testing')
         return value
 
 def get_best_move(move_list, moves):
-    best_move = None
-    best_value = 0
-    print('Current score: ', evaluate(get_board(move_list)))
+    best_move, best_value = None, 0
     for move in moves:
         if is_double_jump(get_board(add_move([x for x in move_list], move)), add_move([x for x in move_list], move), WHITE):
-            value = minimax(session['depth'], add_move([x for x in move_list], move), -99999, 99999, WHITE)
+            color = WHITE
         else:
-            value = minimax(session['depth'], add_move([x for x in move_list], move), -99999, 99999, BLACK)
-        print(move, value)
+            color = BLACK
+        value = minimax(session['depth'], add_move([x for x in move_list], move), -99999, 99999, color)
         if value >= best_value or best_move is None:
-            best_move = move
-            best_value = value
-    print('Best move: ', best_move, '\nValue ', best_value)
+            best_move, best_value = move, value
     return best_move
 
 def make_ai_move(board, move_list):
@@ -438,7 +406,6 @@ def move_data(board, move_list):
         _moves = get_possible_moves(board, move_list, int(not is_turn(WHITE, move_list)))
     else:
         _moves = get_possible_moves(board, move_list, int(is_turn(WHITE, move_list)))
-    print(_moves)
     moves = []
     for x in range(32):
         moves.append([])
@@ -463,10 +430,13 @@ def cancel_game(room):
         
 
 @socketio.on('create room')
-def create_game():
+def create_game(name):
     if session['room'] is not None:
         return 0
-    room = 'Room{}'.format(len(rooms))
+    if name is None:
+        room = 'Room{}'.format(len(rooms))
+    else:
+        room = str(name)
     join_room(room)
     room_strut = Room(room, session['id'], 0, list(start_board), [])
     rooms.append(room_strut)
@@ -483,9 +453,7 @@ def disconnected():
 def join_game(name):
     for room in rooms:
         if room.name == name:
-            print('Found room')
             if not room.is_full():
-                print('Joined room')
                 room.white_id = session['id']
                 join_room(name)
                 session['color'] = WHITE
@@ -527,18 +495,18 @@ def online_user_move(data):
 
 @socketio.on('move request')
 def user_move(data):
-    current, new, board = int(data["current_pos"]), int(data["new_pos"]), session['board']
-    color = board[current]%2
-    if valid_move(current, new, board, session['move_list'], color) and not (session['version'] == 'single' and color == WHITE):
-        make_move(current, new, board)
-        emit('move response', {'moves': move_data(session['board'], session['move_list']), 'result': True, 'board': [None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in board]})
+    current, new = int(data["current_pos"]), int(data["new_pos"]), 
+    color = session['board'][current]%2
+    if valid_move(current, new, session['board'], session['move_list'], color) and not (session['version'] == 'single' and color == WHITE):
+        make_move(current, new, session['board'])
+        emit('move response', {'moves': move_data(session['board'], session['move_list']), 'result': True, 'board': [None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in session['board']]})
         socketio.sleep(1)
-        if session['version'] == 'single' and not game_has_ended(board) and not is_double_jump(board, session['move_list'], BLACK):
-            make_ai_move(board, session['move_list'])
-        if game_has_ended(board):
-            if can_move(board, BLACK):
+        if session['version'] == 'single' and not game_has_ended(board) and not is_double_jump(session['board'], session['move_list'], BLACK):
+            make_ai_move(session['board'], session['move_list'])
+        if game_has_ended(session['board']):
+            if can_move(session['board'], BLACK):
                 emit('game end', {'result': 'black'})
-            elif can_move(board, WHITE):
+            elif can_move(session['board'], WHITE):
                 emit('game end', {'result':'white'})
             else:
                 emit('game end', {'result': 'draw'})
@@ -548,21 +516,10 @@ def user_move(data):
 @app.route('/game/<version>')
 def game(version):
     if version == 'single':
-        session['depth'] = 3
+        session['depth'] = BASE_DEPTH
     session['version'] = version
-    if version == 'online':
-        for room in rooms:
-            if room.black_id == session['id']:
-                color = 'black'
-                break
-            elif room.white_id == session['id']:
-                color = 'white'
-                break
-        print(session.keys())
-        return render_template('game.html', version=version, color=color)
-    else:
-        session['move_list'] = []
-        session['board'] = list(start_board)
-        return render_template('game.html', version=version)
+    session['move_list'] = []
+    session['board'] = list(start_board)
+    return render_template('game.html', version=version)
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
