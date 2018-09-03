@@ -12,36 +12,42 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
     <link rel='stylesheet' type='text/css' href='/static/style.css'>
-</head <body>
-<div class="container">
-    <div class="row">
-        <h1 class="display-4">Two Player</h1>
-    </div>
-    <div class='row'>
-        <p class='lead hidden'>
-            Two player draughts game against someone online
-        </p>
-    </div>
-    <div class='row' id='info'></div>
-    <div class='row hidden' id='board_row'>
-        <canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
-    </div>
-    <div id='findGame'>
-        <div class='row'>
-            <p class='lead'>Create a game or join someone else's:</p>
-        </div>
-        <div class='row'>
-            <button class='btn btn-primary' id='createGame'>Create game</button>
-        </div>
+</head>
+
+<body>
+    <div class="container">
         <div class="row">
-            <table>
-                <th>Games to join:</th>
-            </table>
+            <h1 class="display-4">Two Player</h1>
+        </div>
+        <div class='row'>
+            <p class='lead hidden'>
+                Two player draughts game against someone online
+            </p>
+        </div>
+        <div class='row' id='info'></div>
+        <div class='row hidden' id='board_row'>
+            <canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
+        </div>
+        <div id='findGame'>
+            <div class='row'>
+                <p class='lead'>Create a game or join someone else's:</p>
+            </div>
+            <div class='row'>
+                <button class='btn btn-primary' id='createGame'>Create game</button>
+            </div>
+            <div class="row">
+                <table>
+                    <th>Games to join:</th>
+                </table>
+            </div>
         </div>
     </div>
-</div>
 </body>
 <script type="text/javascript">
+    var rooms = {{ rooms| safe }};
+    var id = {{ id }};
+    var color = null;
+    var started = false;
     $(document).ready(function () {
         var socket = io.connect();
         socket.on('connect', function () {
@@ -49,9 +55,80 @@
         });
         var board = ['white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
         var selected = null;
+        var moves = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
         var canvas = $('#game_board')[0];
         canvas.addEventListener('click', function (event) { clicked(event) });
         var context = canvas.getContext('2d');
+        function drawBoard(){
+        var space = 0;
+        // Draw board base
+        for(var y = 0; y < 8; y++){
+            for(var x = 0; x < 8; x++){
+                if(x % 2 != y % 2){
+                    context.fillStyle = 'white';
+                }
+                else {
+                    context.fillStyle = 'darkgrey';
+                }
+                context.fillRect(x * 100, y * 100, 100, 100);
+            }
+        };
+        for(var y = 0; y < 8; y++){
+            for(var x = 0; x < 8; x++){
+                if (x % 2 == y % 2) {
+                    if (selected === null){
+                        if (moves[space].length > 0 && board[space].split(' ')[0] == color){
+                            context.strokeStyle = '#007BFF';
+                            context.lineWidth = 3;
+                            //This piece can be moved
+                            context.strokeRect(x * 100, y * 100, 100, 100);
+                            context.lineWidth = 1;
+                        }
+                    }
+                    else {
+                        if (space == selected){
+                            context.strokeStyle = '#007BFF';
+                            context.lineWidth = 3;
+                            context.strokeRect(x * 100, y * 100, 100, 100);
+                            context.lineWidth = 1;
+
+                        }
+                        else if( moves[selected].indexOf(space) >= 0){
+                            // piece can move to here
+                            context.fillStyle = '#007BFF';
+                            context.fillRect(x * 100, y * 100, 100, 100);
+                        }
+                    }
+                    if (board[space] != null){
+                        context.strokeStyle = 'black';
+                        if (board[space].split(' ')[0] == 'white'){
+                            context.fillStyle = 'white';
+                        }
+                        else {
+                            context.fillStyle = 'black';
+                        }
+                        context.beginPath();
+                        context.arc(x * 100 + 50, y*  100 + 50, 45, 0, 2 * Math.PI);
+                        context.fill();
+                        context.stroke();
+                        if (board[space].split(' ')[1] == 'king'){
+                            context.font = "50px Times New Roman";
+                            if (board[space].split(' ')[0] == 'black'){
+                                context.fillStyle = 'white';
+                            }
+                            else{
+                                context.fillStyle = 'black';
+                            }
+                            context.textAlign = 'center';
+                            context.textBaseline = 'middle'; 
+                            context.fillText('K', x*100+50, y*100+50);
+                        }
+                    }
+                    space ++;
+                }
+            }
+        }
+    }
         socket.on('game end', function (data) {
             var message;
             if (data.result == 'black') {
@@ -66,46 +143,20 @@
             var display_message = '<div class="alert alert-success alert-dismissible fade show"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>';
             $('#info').append(display_message);
         });
+        socket.on('move data', function(data){
+            console.log('Received move data');
+            moves = data.moves;
+            drawBoard();
+            console.log(moves);
+        });
         socket.on('move response', function (data, from, to) {
             console.log('callback')
             console.log(data.result);
             if (data.result === true) {
-                for (var i = 0; i < 32; i++) {
-                    if (data.board[i] != board[i]) {
-                        var row = Math.floor(i / 4);
-                        var col = i % 4 * 2 + Math.floor((i % 8) / 4);
-                        if (data.board[i] === null) {
-                            console.log(row, col, 0)
-                            context.fillStyle = 'darkgrey';
-                            context.fillRect(col * 100, 100 * row, 100, 100);
-                        }
-                        else {
-                            console.log(row, col)
-                            context.fillStyle = data.board[i].split(' ')[0];
-                            context.beginPath();
-                            context.arc(col * 100 + 50, row * 100 + 50, 45, 0, 2 * Math.PI);
-                            context.fill();
-                            context.stroke();
-                            if (data.board[i].split(' ')[1] == 'king') {
-                                context.font = "50px Times New Roman";
-                                if (data.board[i].split(' ')[0] == 'black') {
-                                    context.fillStyle = 'white';
-                                }
-                                else {
-                                    context.fillStyle = 'black';
-                                }
-                                context.textAlign = 'center';
-                                context.textBaseline = 'middle';
-                                context.fillText('K', col * 100 + 50, row * 100 + 50);
-                            }
-                        }
-                    }
-                }
                 board = data.board;
+                moves = data.moves;
             }
-            else {
-                //? do something
-            }
+            drawBoard();
         });
         function clicked(event) {
             var x = event.pageX - canvas.offsetLeft;
@@ -115,72 +166,77 @@
                 if (board[pos] != null) {
                     console.log('selected: ' + pos)
                     selected = pos;
+                    drawBoard();
                 }
 
             }
             else {
-                //check if move is valid
                 console.log('Making move from ' + selected + ' to ' + pos);
                 socket.emit('online move request', { current_pos: selected, new_pos: pos });
                 selected = null;
             }
 
         }
-        function drawBoard() {
-            for (var x = 0; x < 8; x++) {
-                for (var y = 0; y < 8; y++) {
-                    if (x % 2 == y % 2) {
-                        context.fillStyle = 'darkgrey';
-                    }
-                    else {
-                        context.fillStyle = 'white';
-                    }
-                    context.fillRect(x * 100, y * 100, 100, 100);
-                    if (x % 2 == y % 2 && y < 3) {
-                        context.fillStyle = 'white';
-                        context.beginPath();
-                        context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
-                        context.fill();
-                        context.stroke();
-                    }
-                    else if (x % 2 == y % 2 && y > 4) {
-                        context.fillStyle = 'black';
-                        context.beginPath();
-                        context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
-                        context.fill();
-                        context.stroke();
-
-                    }
-                }
+        for (var i = 0; i < rooms.length; i++) {
+            $("table").append(
+                $('<tr></tr>').append(
+                    $('<td></td>').text(rooms[i]), $('<td></td').append(
+                        $('<button/>', {
+                            text: 'Join ',
+                            class: "btn btn-primary",
+                            id: rooms[i],
+                            click: function () { socket.emit('join room', this.id) }
+                        }
+                        )
+                    )
+                )
+            )
+        }
+        socket.on('start game', function (data) {
+            $('#findGame').toggleClass('hidden');
+            $('.lead').toggleClass('hidden');
+            $('#board_row').toggleClass('hidden');
+            started = true
+            moves = data.moves;
+            if (data.black == id){
+                color = 'black';
             }
-        };
-        var rooms = {{ rooms|safe }};
-    for (var i = 0; i < rooms.length; i++) {
-        $('table').append(
-            $('<tr></tr>').append(
-                $('<td></td>').text(rooms[i]), $('<td></td').append(
-                    $('<button class="btn btn-primary">Join</button>').click(function () { socket.emit('join room', { 'room': rooms[i] }) })
+            else {
+                color = 'white';
+            }
+            drawBoard();
+        });
+        socket.on('room close', function (room){
+            $('button#'+room).parent().parent().remove();
+        });
+        socket.on('add room', function (room) {
+            console.log('New room ' + room.name);
+            var element;
+            if ( room.creator == id ){
+                element = $('<button/>', {
+                    text: 'Cancel',
+                    class: 'btn btn-primary',
+                    id: room.name,
+                    click: function () { socket.emit('cancel game', this.id)}
+                });
+            }
+            else {
+                element = $('<button/>', {
+                    text: 'Join ',
+                    class: "btn btn-primary",
+                    id: room.name,
+                    click: function () { socket.emit('join room', this.id) }
+                });
+            }
+            $('table').append(
+                $('<tr></tr>').append(
+                    $('<td></td>').text(room.name), $('<td></td').append(
+                        element
+                    )
                 )
             )
-        )
-    }
-    socket.on('start game', function () {
-        $('#findGame').toggleClass('hidden');
-        $('.lead').toggleClass('hidden');
-        $('#board_row').toggleClass('hidden');
-        drawBoard();
-    });
-    socket.on('add room', function (room) {
-        console.log('New room ' + room.name)
-        $('table').append(
-            $('<tr></tr>').append(
-                $('<td></td>').text(room.name), $('<td></td').append(
-                    $('<button class="btn btn-primary">Join</button>').click(function () { socket.emit('join room', { 'room': room.name }) })
-                )
-            )
-        )
-    });
-    $(document).on('click', '#createGame', function () { socket.emit('create room') });
+        });
+        $(document).on('click', '#createGame', function () { socket.emit('create room') });
     });
 </script>
 

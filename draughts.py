@@ -447,32 +447,55 @@ def move_data(board, move_list):
                 moves[x].append(move[1])
     return moves
 
+@socketio.on('cancel game')
+def cancel_game(room):
+    if type(room) == str:
+        for _room in rooms:
+            if _room.name == room:
+                rooms.remove(_room)
+                del _room
+                emit('room close', room, broadcast=True)
+    elif type(room) == Room:
+        rooms.remove(room)
+        emit('room close', room.name, broadcast=True)
+        del room
+    session['room'] = None
+        
+
 @socketio.on('create room')
 def create_game():
-    print('Creating room')
-    room = 'Room {}'.format(len(rooms))
+    if session['room'] is not None:
+        return 0
+    room = 'Room{}'.format(len(rooms))
     join_room(room)
     room_strut = Room(room, session['id'], 0, list(start_board), [])
     rooms.append(room_strut)
     session['room'] = room_strut
     session['color'] = BLACK
-    emit('add room', {'name': room, 'players': [session['id']]}, broadcast=True)
+    emit('add room', {'name': room, 'creator': [session['id']]}, broadcast=True)
+
+@socketio.on('disconnect')
+def disconnected():
+    if session['version'] == 'online':
+        cancel_game(session['room'])
 
 @socketio.on('join room')
-def join_game(data):
-    print('Joining room')
+def join_game(name):
     for room in rooms:
-        if room.name == data['room']:
+        if room.name == name:
+            print('Found room')
             if not room.is_full():
                 print('Joined room')
                 room.white_id = session['id']
-                join_room(data['room'])
+                join_room(name)
                 session['color'] = WHITE
                 session['room'] = room
-                emit('start game', room=room.name)
+                emit('start game', {'moves': move_data(room.board, room.move_list), 'black': room.black_id, 'white': room.white_id}, room=room.name)
 
 @app.route('/online_game')
 def online_game():
+    session['room'] = None
+    session['version'] = 'online'
     session['id'] = random.randint(1, 1000)
     return render_template('online.html', rooms=json.dumps([room.name for room in rooms]), id = session['id'])
 
@@ -481,19 +504,16 @@ def index():
     # Render the start page
     return render_template('index.html')
 
-@socketio.on('connect')
-def connected():
-    print('connected')
-    print(session['version'])
-    if session['version'] in ('local', 'single'):
-        emit('move data', {'moves': move_data(session['board'], session['move_list'])})
+@socketio.on('request move data')
+def request_move_data():
+    emit('move data', {'moves': move_data(session['board'], session['move_list'])})
 
 @socketio.on('online move request')
 def online_user_move(data):
     current, new, color, board, move_list = int(data['current_pos']), int(data["new_pos"]), session['color'], session['room'].board, session['room'].move_list
     if valid_move(current, new, board, move_list, color):
         make_move(current, new, board, move_list)
-        emit('move response', {'result': True, 'board': [None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in board]}, room=session['room'].name)
+        emit('move response', {'moves': move_data(board, move_list), 'result': True, 'board': [None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in board]}, room=session['room'].name)
         if game_has_ended(board):
             if can_move(board, BLACK):
                 emit('game end', {'result': 'black'}, room=session['room'])
