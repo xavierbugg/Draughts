@@ -433,7 +433,7 @@ def cancel_game(room):
 def create_game(name):
     if session['room'] is not None:
         return 0
-    if name is None:
+    if name is None or name == '':
         room = 'Room{}'.format(len(rooms))
     else:
         room = str(name)
