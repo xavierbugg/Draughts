@@ -300,7 +300,8 @@ def make_move(current, new, board, move_list=None):
 
 def evaluate(board):
     scores = [3, 5]
-    value = 0
+    black_score = 0
+    white_score = 0
     for number, space in enumerate(board):
         if space is not None:
             color, is_king = space%2, space//2
@@ -313,10 +314,10 @@ def evaluate(board):
                 else:
                     piece_value += 0.05*(7-number//4)
             if color == BLACK:
-                piece_value *= -1
-            value += piece_value
-            
-    return int(round(value,2)*100)
+                black_score += piece_value
+            else:
+                white_score += piece_value
+    return int(white_score / black_score * 1000) + random.randint(-3, 3)
 
 def add_move(move_list, move):
     if move_list[-1][-1] == move[0]:
@@ -333,15 +334,15 @@ def minimax(depth, move_list, alpha, beta, player):
     board = get_board(move_list)
     if game_has_ended(board):
         if can_move(board, BLACK):
-            return -9999
+            return -9999999
         elif can_move(board, WHITE):
-            return 9999
+            return 9999999
         else:
             return 0
     if not depth:
         return evaluate(board)
     if player:
-        value = -99999
+        value = -9999999
         for child in get_children(move_list, board, player):
             if is_double_jump(get_board(child), child, player):
                 value = max(value, minimax(depth, child, alpha, beta, WHITE))
@@ -356,7 +357,7 @@ def minimax(depth, move_list, alpha, beta, player):
                 break
         return value
     else:
-        value = 99999
+        value = 9999999
         for child in get_children(move_list, board, player):
             if is_double_jump(get_board(child), child, player):
                 value = min(value, minimax(depth, child, alpha, beta, BLACK))
@@ -377,7 +378,8 @@ def get_best_move(move_list, moves):
             color = WHITE
         else:
             color = BLACK
-        value = minimax(session['depth'], add_move([x for x in move_list], move), -99999, 99999, color)
+        value = minimax(session['depth'], add_move([x for x in move_list], move), -9999999, 9999999, color)
+        print(value)
         if value >= best_value or best_move is None:
             best_move, best_value = move, value
     return best_move
@@ -501,7 +503,7 @@ def user_move(data):
         make_move(current, new, session['board'])
         emit('move response', {'moves': move_data(session['board'], session['move_list']), 'result': True, 'board': [None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in session['board']]})
         socketio.sleep(1)
-        if session['version'] == 'single' and not game_has_ended(board) and not is_double_jump(session['board'], session['move_list'], BLACK):
+        if session['version'] == 'single' and not game_has_ended(session['board']) and not is_double_jump(session['board'], session['move_list'], BLACK):
             make_ai_move(session['board'], session['move_list'])
         if game_has_ended(session['board']):
             if can_move(session['board'], BLACK):
@@ -521,5 +523,6 @@ def game(version):
     session['move_list'] = []
     session['board'] = list(start_board)
     return render_template('game.html', version=version)
+
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)
