@@ -503,8 +503,7 @@ def user_move(data):
         if session['version'] == 'single' and not game_has_ended(session['board']) and not is_double_jump(session['board'], session['move_list'], BLACK):
             make_ai_move(session['board'], session['move_list'])
         if game_has_ended(session['board']):
-            result = 'black' if can_move(session['board'], BLACK) else 'white' if emit(
-                'game end', {'result': 'white'}) else 'draw'
+            result = 'black' if can_move(session['board'], BLACK) else 'white' if can_move(session['board'], WHITE) else 'draw'
             emit('game end', {'result': result})
     else:
         emit('move response', {'result': False})
