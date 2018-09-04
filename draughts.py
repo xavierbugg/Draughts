@@ -60,7 +60,6 @@ def piece_can_move(piece, board, color, moves=BASE_MOVES):
         possible_moves = [-move for move in moves]
     elif color == WHITE:
         possible_moves = moves
-    print(color)
     for move in possible_moves:
         if valid_basic_move(piece, piece+move, board, color):
             return True
@@ -88,7 +87,6 @@ def get_piece_moves(board, move_list, piece, moves=[3, 4, 5, 7, 9]):
 
 def get_possible_moves(board, move_list, color, moves=BASE_MOVES):
     possible_moves = []
-    print(board)
     for i in range(32):
         if board[i] is not None and board[i] % 2 == color:
             for new_pos in get_piece_moves(board, move_list, i):
