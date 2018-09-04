@@ -1,7 +1,6 @@
 $(document).ready(function(){
     var socket = io.connect();
     socket.on('connect', function() {
-        console.log('connected');
         socket.emit('request move data');
     });
     var board = ['white man', 'white man', 'white man', 'white man','white man','white man','white man','white man','white man','white man','white man','white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
