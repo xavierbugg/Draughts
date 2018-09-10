@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Single Player Game{% endblock %}
-{% block script %}<script type="text/javascript" src="/static/single.js"></script>{% endblock %}
 {% block heading %}Single Player{% endblock %}
 {% block paragraph %}Single Player game against an AI{% endblock %}
+{% block script %}
+        socket.on('connect', function() {
+            socket.emit('request move data');
+        });
+        drawBoard();
+{% endblock %}

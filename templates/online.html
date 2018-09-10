@@ -1,124 +1,31 @@
-<!DOCTYPE HTML>
-<html lang="en">
+{% extends "base.html" %}
+{% block title %}Online Game{% endblock %}
+{% block heading %}Online Two Player{% endblock %}
+{% block paragraph %}Two player draughts game against someone online{% endblock %}
 
-<head>
-    <title>
-        Online Game
-    </title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
-    <link rel='stylesheet' type='text/css' href='/static/style.css'>
-</head>
-
-<body>
-    <div class="container">
-        <div class="row">
-            <h1 class="display-4">Two Player</h1>
+{% block content %}
+    <div id='findGame'>
+        <div class='row'>
+            <p class='lead'>Create a game or join someone else's:</p>
         </div>
         <div class='row'>
-            <p class='lead hidden'>
-                Two player draughts game against someone online
-            </p>
+            <div class="input-group">
+                <span class="input-group-append">
+                    <button class='btn btn-secondary rounded-left' id='createGame'>Create game</button>
+                </span>
+                <input type="text" class="form-control" id='nameInput' placeholder='Game name'>
+            </div>
         </div>
-        <div class='row' id='info'></div>
-        <div class='row hidden' id='board_row'>
-            <canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
-        </div>
-        <div id='findGame'>
-            <div class='row'>
-                <p class='lead'>Create a game or join someone else's:</p>
-            </div>
-            <div class='row'>
-                <div class="input-group">
-                    <span class="input-group-append">
-                        <button class='btn btn-secondary rounded-left' id='createGame'>Create game</button>
-                    </span>
-                    <input type="text" class="form-control" id='nameInput' placeholder='Game name'>
-                </div>
-            </div>
-            <div class="row">
-                <table>
-                    <th>Games to join:</th>
-                </table>
-            </div>
+        <div class="row">
+            <table>
+                <th>Games to join:</th>
+            </table>
         </div>
     </div>
-</body>
+{% endblock %}
+{% block script %}
 <script type="text/javascript">
     var rooms = {{ rooms| safe }};
     var id = {{ id }};
-    var color = null;
-    var started = false;
-    $(document).ready(function () {
-        var socket = io.connect();
-        socket.on('connect', function () {
-            console.log('connected');
-        });
-        for (var i = 0; i < rooms.length; i++) {
-            $("table").append(
-                $('<tr></tr>').append(
-                    $('<td></td>').text(rooms[i]), $('<td></td').append(
-                        $('<button/>', {
-                            text: 'Join ',
-                            class: "btn btn-primary",
-                            id: rooms[i],
-                            click: function () { socket.emit('join room', this.id) }
-                        }
-                        )
-                    )
-                )
-            )
-        }
-        socket.on('start game', function (data) {
-            $('#findGame').toggleClass('hidden');
-            $('.lead').toggleClass('hidden');
-            $('#board_row').toggleClass('hidden');
-            started = true
-            moves = data.moves;
-            if (data.black == id){
-                color = 'black';
-            }
-            else {
-                color = 'white';
-            }
-            drawBoard();
-        });
-        socket.on('room close', function (room){
-            $('button#'+room).parent().parent().remove();
-        });
-        socket.on('add room', function (room) {
-            console.log('New room ' + room.name);
-            var element;
-            if ( room.creator == id ){
-                element = $('<button/>', {
-                    text: 'Cancel',
-                    class: 'btn btn-primary',
-                    id: room.name,
-                    click: function () { socket.emit('cancel game', this.id)}
-                });
-            }
-            else {
-                element = $('<button/>', {
-                    text: 'Join ',
-                    class: "btn btn-primary",
-                    id: room.name,
-                    click: function () { socket.emit('join room', this.id) }
-                });
-            }
-            $('table').append(
-                $('<tr></tr>').append(
-                    $('<td></td>').text(room.name), $('<td></td').append(
-                        element
-                    )
-                )
-            )
-        });
-        $(document).on('click', '#createGame', function () { socket.emit('create room',  $('#nameInput').val())});
-    });
 </script>
-
-</html>
+{% endblock %}

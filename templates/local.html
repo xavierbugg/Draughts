@@ -1,1 +1,10 @@
-
+{% extends "base.html" %}
+{% block title %}Local Game{% endblock %}
+{% block heading %}Local Two Player{% endblock %}
+{% block paragraph %}Two Player game against someone of the same device{% endblock %}
+{% block script %}
+        socket.on('connect', function () {
+            socket.emit('request move data');
+        });
+        drawBoard();
+{% endblock %}
