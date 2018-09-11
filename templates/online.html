@@ -24,8 +24,7 @@
     </div>
 {% endblock %}
 {% block script %}
-<script type="text/javascript">
     var rooms = {{ rooms| safe }};
     var id = {{ id }};
-</script>
+    $.getScript('online.html');
 {% endblock %}

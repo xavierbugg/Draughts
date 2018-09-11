@@ -28,6 +28,7 @@
 </body>
 <script type='text/javascript'>
 	$(document).ready(function () {
+		var version = {% block version %}{% endblock %};
 		var socket = io.connect();
 		var board = ['white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
 		var selected = null;
