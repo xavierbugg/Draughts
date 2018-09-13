@@ -231,19 +231,20 @@
 				var rooms = {{ rooms| safe }};
 				var id = {{ id }};
 				for (var i = 0; i < rooms.length; i++) {
-				$("table").append(
-					$('<tr></tr>').append(
-						$('<td></td>').text(rooms[i]), $('<td></td').append(
-							$('<button/>', {
-								text: 'Join ',
-								class: "btn btn-primary",
-								id: rooms[i],
-								click: function () { socket.emit('join room', this.id) }
-							}
+					$("table").append(
+						$('<tr></tr>').append(
+							$('<td></td>').text(rooms[i]), $('<td></td').append(
+								$('<button/>', {
+									text: 'Join ',
+									class: "btn btn-primary",
+									id: rooms[i],
+									click: function () { socket.emit('join room', this.id) }
+								}
+								)
 							)
 						)
-					)
-				);
+					);
+				}
 				$(document).on('click', '#createGame', function () { socket.emit('create room', $('#nameInput').val()) });
 			}
 			else {
