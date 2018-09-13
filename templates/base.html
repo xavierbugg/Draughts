@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-	<title>{% block title %}{% endblock %}</title>
+	<title>{% if version == 'local' %}Local{% elif version == 'online' %}Online{% else %}Single Player{% endif %} Game</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
@@ -15,20 +15,38 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<h1 class="display-4">{% block heading %}{% endblock %}</h1>
+			<h1 class="display-4">
+				{% if version=='single' %}Single Player{% elif version == 'online' %}Online Two Player{% else %}Local Two Player{% endif %}
+			</h1>
 		</div>
 		<div class="row">
-			<p class='lead'>{% block paragraph %}{% endblock %}</p>
+			<p class='lead'>
+				{% if version == 'single' %}Single Player game against an AI
+				{% elif version == 'online'%}Two player draughts game against someone online
+				{% else %}Two Player game against someone of the same device
+				{% endif %}
+			</p>
 		</div>
 		<div class='row'>
 			<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
 		</div>
-		{% block content %}{% endblock %}
+		{% if version == 'online' %}{% include 'find_game.html' %}{% endif %}
 	</div>
 </body>
 <script type='text/javascript'>
 	$(document).ready(function () {
-		var version = {% block version %}{% endblock %};
+		var version = {{version}};
+		if (version == 'online'){
+			var rooms = {{ rooms| safe }};
+			var id = {{ id }};
+			$.getScript('online.js');
+		}
+		else {
+			socket.on('connect', function () {
+				socket.emit('request move data');
+			});
+			drawBoard();
+		}
 		var socket = io.connect();
 		var board = ['white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
 		var selected = null;
@@ -154,8 +172,6 @@
 			}
 			drawBoard();
 		});
-		{% block script %}{% endblock %}
-
 	})
 </script> 
 
