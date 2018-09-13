@@ -156,7 +156,7 @@
 			var y = event.pageY - canvas.offsetTop;
 			var pos = Math.floor(Math.floor(x / canvas.scrollWidth * 8) / 2) + Math.floor(y / canvas.scrollHeight * 8) * 4
 			if (selected === null) {
-				if (board[pos] != null && moves[pos].length > 0 && version == 'local' || board[pos].split(' ')[0] == color) {
+				if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].split(' ')[0] == color)) {
 					console.log('selected: ' + pos)
 					selected = pos;
 					drawBoard();
