@@ -503,6 +503,7 @@ def user_move(data):
             make_ai_move(session['board'], session['move_list'])
         if game_has_ended(session['board']):
             result = 'black' if can_move(session['board'], BLACK) else 'white' if can_move(session['board'], WHITE) else 'draw'
+            print('game ended')
             emit('game end', {'result': result})
     else:
         emit('move response', {'result': False})
