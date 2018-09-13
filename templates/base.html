@@ -124,17 +124,11 @@
 						if (board[space] != null) {
 							context.strokeStyle = 'black';
 							if (board[space].split(' ')[0] == 'white') {
-								var grd = context.createRadialGradient(x*100+50, y*100+50, 45, x*100+20, y*100+30, 0);
-								grd.addColorStop(0, '#E0E0E0')
-								grd.addColorStop(1, 'white');
+								context.fillStyle = 'white';
 							}
 							else {
-								var grd = context.createRadialGradient(x*100+50, y*100+50, 45, x*100+20, y*100+30, 0);
-								grd.addColorStop(0, 'black')
-								grd.addColorStop(1, '#101010');
 								context.fillStyle = 'black';
 							}
-							context.fillStyle = grd;
 							context.beginPath();
 							context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
 							context.fill();
