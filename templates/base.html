@@ -149,14 +149,10 @@
 			$('#info').append(display_message);
 		});
 		socket.on('move data', function (data) {
-			console.log('Received move data');
 			moves = data.moves;
 			drawBoard();
-			console.log(moves);
 		});
 		socket.on('move response', function (data, from, to) {
-			console.log('callback')
-			console.log(data.result);
 			if (data.result === true) {
 				board = data.board;
 				moves = data.moves;
