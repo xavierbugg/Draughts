@@ -36,17 +36,6 @@
 <script type='text/javascript'>
 	$(document).ready(function () {
 		var version = "{{version}}";
-		if (version == 'online'){
-			var rooms = {{ rooms| safe }};
-			var id = {{ id }};
-			$.getScript('online.js');
-		}
-		else {
-			socket.on('connect', function () {
-				socket.emit('request move data');
-			});
-			drawBoard();
-		}
 		var socket = io.connect();
 		var board = ['white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
 		var selected = null;
@@ -54,6 +43,8 @@
 		var canvas = $('#game_board')[0];
 		canvas.addEventListener('click', function (event) { clicked(event) });
 		var context = canvas.getContext('2d');
+	
+	
 		function drawBoard() {
 			var space = 0;
 			// Draw board base
@@ -172,6 +163,17 @@
 			}
 			drawBoard();
 		});
+		if (version == 'online'){
+			var rooms = {{ rooms| safe }};
+			var id = {{ id }};
+			$.getScript('online.js');
+		}
+		else {
+			socket.on('connect', function () {
+				socket.emit('request move data');
+			});
+			drawBoard();
+		}
 	})
 </script> 
 
