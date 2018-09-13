@@ -58,6 +58,8 @@
 		var version = "{{version}}";
 		if (version == 'online'){
 			var socket = io.connect('/online')
+			var rooms = {{ rooms| safe }};
+			var id = {{ id }};
 		}
 		else {
 			var socket = io.connect();
@@ -230,8 +232,6 @@
 		});
 		function startUp(){
 			if (version == 'online'){
-				var rooms = {{ rooms| safe }};
-				var id = {{ id }};
 				for (var i = 0; i < rooms.length; i++) {
 					$("table").append(
 						$('<tr></tr>').append(
