@@ -516,7 +516,7 @@ def game(version):
     session['version'] = version
     session['move_list'] = []
     session['board'] = list(start_board)
-    return render_template('base.html', version=version)
+    return render_template('base.html', version=version, id=None, rooms=None)
 
 
 if __name__ == '__main__':
