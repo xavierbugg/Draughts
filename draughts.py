@@ -460,7 +460,7 @@ def online_game():
     session['room'] = None
     session['version'] = 'online'
     session['id'] = random.randint(1, 1000)
-    return render_template('online.html', rooms=json.dumps([room.name for room in rooms]), id=session['id'])
+    return render_template('base.html', version=version, rooms=json.dumps([room.name for room in rooms]), id=session['id'])
 
 
 @app.route('/')
