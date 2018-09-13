@@ -20,14 +20,14 @@
 			</h1>
 		</div>
 		<div class="row">
-			<p class='lead{% if version == 'online' %} hidden{% endif %}'>
+			<p class="lead{% if version == 'online' %} hidden{% endif %}">
 				{% if version == 'single' %}Single Player game against an AI
 				{% elif version == 'online'%}Two player draughts game against someone online
 				{% else %}Two Player game against someone of the same device
 				{% endif %}
 			</p>
 		</div>
-		<div class='row{% if version == 'online' %} hidden{% endif %}' id='board_row'>
+		<div class="row{% if version == 'online' %} hidden{% endif %}" id='board_row'>
 			<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
 		</div>
 		<div id='info' class='row'></div>
