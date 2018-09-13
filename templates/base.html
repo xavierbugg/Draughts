@@ -189,7 +189,7 @@
 			else {
 				message = 'It\'s a draw';
 			}
-			var display_message = '<div class="alert alert-success alert-dismissible fade show"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>';
+			var display_message = '<div class="alert alert-success alert-dismissible fade show" role="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>';
 			$('#info').append(display_message);
 		});
 		socket.on('move data', function (data) {
