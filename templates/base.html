@@ -14,12 +14,12 @@
 
 <body>
 	<div class="container">
-		<div class="row{% if version == 'online' %} hidden{% endif %}">
+		<div class="row">
 			<h1 class="display-4">
 				{% if version=='single' %}Single Player{% elif version == 'online' %}Online Two Player{% else %}Local Two Player{% endif %}
 			</h1>
 		</div>
-		<div class="row">
+		<div class="row{% if version == 'online' %} hidden{% endif %}">
 			<p class='lead'>
 				{% if version == 'single' %}Single Player game against an AI
 				{% elif version == 'online'%}Two player draughts game against someone online
