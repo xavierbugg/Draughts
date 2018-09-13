@@ -14,7 +14,7 @@
 
 <body>
 	<div class="container">
-		<div class="row">
+		<div class="row{% if version == 'online' %} hidden{% endif %}">
 			<h1 class="display-4">
 				{% if version=='single' %}Single Player{% elif version == 'online' %}Online Two Player{% else %}Local Two Player{% endif %}
 			</h1>
@@ -27,7 +27,7 @@
 				{% endif %}
 			</p>
 		</div>
-		<div class='row'>
+		<div class='row{% if version == 'online' %} hidden{% endif %}'>
 			<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
 		</div>
 		{% if version == 'online' %}{% include 'find_game.html' %}{% endif %}
