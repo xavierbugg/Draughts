@@ -132,6 +132,7 @@
 							context.beginPath();
 							context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
 							context.fill();
+							context.stroke();
 							if (board[space].split(' ')[1] == 'king') {
 								context.font = "50px Times New Roman";
 								if (board[space].split(' ')[0] == 'black') {
