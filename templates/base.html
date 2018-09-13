@@ -30,7 +30,26 @@
 		<div class='row{% if version == 'online' %} hidden{% endif %}'>
 			<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
 		</div>
-		{% if version == 'online' %}{% include 'find_game.html' %}{% endif %}
+		{% if version == 'online' %}
+			<div id='findGame'>
+				<div class='row'>
+					<p class='lead'>Create a game or join someone else's:</p>
+				</div>
+				<div class='row'>
+					<div class="input-group">
+						<span class="input-group-append">
+							<button class='btn btn-secondary rounded-left' id='createGame'>Create game</button>
+						</span>
+						<input type="text" class="form-control" id='nameInput' placeholder='Game name'>
+					</div>
+				</div>
+				<div class="row">
+					<table>
+						<th>Games to join:</th>
+					</table>
+				</div>
+			</div>
+		{% endif %}
 	</div>
 </body>
 <script type='text/javascript'>
@@ -48,8 +67,8 @@
 		var canvas = $('#game_board')[0];
 		canvas.addEventListener('click', function (event) { clicked(event) });
 		var context = canvas.getContext('2d');
-	
-	
+		var color = null;
+		var started = false;
 		function drawBoard() {
 			var space = 0;
 			// Draw board base
@@ -164,17 +183,77 @@
 			}
 			drawBoard();
 		});
-		if (version == 'online'){
-			var rooms = {{ rooms| safe }};
-			var id = {{ id }};
-			$.getScript('online.js');
-		}
-		else {
-			socket.on('connect', function () {
-				socket.emit('request move data');
-			});
-			drawBoard();
-		}
+		socket.on('start game', function (data) {
+        $('#findGame').toggleClass('hidden');
+        $('.lead').toggleClass('hidden');
+        $('#board_row').toggleClass('hidden');
+        started = true
+        moves = data.moves;
+        if (data.black == id) {
+            color = 'black';
+        }
+        else {
+            color = 'white';
+        }
+        drawBoard();
+    });
+		socket.on('room close', function (room) {
+        $('button#' + room).parent().parent().remove();
+    });
+		socket.on('add room', function (room) {
+
+			console.log('New room ' + room.name);
+			var element;
+			if (room.creator == id) {
+				element = $('<button/>', {
+					text: 'Cancel',
+					class: 'btn btn-primary',
+					id: room.name,
+					click: function () { socket.emit('cancel game', this.id) }
+				});
+			}
+			else {
+				element = $('<button/>', {
+					text: 'Join ',
+					class: "btn btn-primary",
+					id: room.name,
+					click: function () { socket.emit('join room', this.id) }
+				});
+			}
+			$('table').append(
+				$('<tr></tr>').append(
+					$('<td></td>').text(room.name), $('<td></td').append(element)
+				)
+			)
+		});
+		function startUp(){
+			if (version == 'online'){
+				var rooms = {{ rooms| safe }};
+				var id = {{ id }};
+				for (var i = 0; i < rooms.length; i++) {
+				$("table").append(
+					$('<tr></tr>').append(
+						$('<td></td>').text(rooms[i]), $('<td></td').append(
+							$('<button/>', {
+								text: 'Join ',
+								class: "btn btn-primary",
+								id: rooms[i],
+								click: function () { socket.emit('join room', this.id) }
+							}
+							)
+						)
+					)
+				);
+				$(document).on('click', '#createGame', function () { socket.emit('create room', $('#nameInput').val()) });
+			}
+			else {
+				socket.on('connect', function () {
+					socket.emit('request move data');
+				});
+				drawBoard();
+			}
+		};
+		startUp();
 	})
 </script> 
 

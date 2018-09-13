@@ -403,23 +403,23 @@ def move_data(board, move_list):
     return moves
 
 
-@socketio.on('cancel game')
+@socketio.on('cancel game', namespace='/online')
 def cancel_game(room):
     if type(room) == str:
         for _room in rooms:
             if _room.name == room:
                 rooms.remove(_room)
                 del _room
-                emit('room close', room, broadcast=True)
+                emit('room close', room, broadcast=True, namespace='/online')
     elif type(room) == Room:
         if room in rooms:
             rooms.remove(room)
-            emit('room close', room.name, broadcast=True)
+            emit('room close', room.name, broadcast=True, namespace='/online')
             del room
     session['room'] = None
 
 
-@socketio.on('create room')
+@socketio.on('create room', namespace='/online')
 def create_game(name):
     if session['room'] is not None:
         return 0
@@ -433,16 +433,15 @@ def create_game(name):
     session['room'] = room_strut
     session['color'] = BLACK
     emit('add room', {'name': room, 'creator': [
-         session['id']]}, broadcast=True)
+         session['id']]}, broadcast=True, namespace='/online')
 
 
-@socketio.on('disconnect')
+@socketio.on('disconnect', namespace='/online')
 def disconnected():
-    if session['version'] == 'online':
-        cancel_game(session['room'])
+    cancel_game(session['room'])
 
 
-@socketio.on('join room')
+@socketio.on('join room', namespace='/online')
 def join_game(name):
     for room in rooms:
         if room.name == name:
@@ -475,7 +474,7 @@ def request_move_data():
         session['board'], session['move_list'])})
 
 
-@socketio.on('online move request')
+@socketio.on('move request', namespace='/online')
 def online_user_move(data):
     current, new, color, board, move_list = int(data['current_pos']), int(
         data["new_pos"]), session['color'], session['room'].board, session['room'].move_list
