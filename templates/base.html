@@ -70,6 +70,7 @@
 		var canvas = $('#game_board')[0];
 		canvas.addEventListener('click', function (event) { clicked(event) });
 		var context = canvas.getContext('2d');
+	 	context.translate(canvas.width/2, canvas.height/2);
 		if (version == 'single'){
 			var color = 'black';
 		}
