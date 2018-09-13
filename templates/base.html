@@ -159,6 +159,7 @@
 
 		}
 		socket.on('game end', function (data) {
+			console.log('game end', data);
 			var message;
 			if (data.result == 'black') {
 				message = 'Black Wins!';
