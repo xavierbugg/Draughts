@@ -70,7 +70,12 @@
 		var canvas = $('#game_board')[0];
 		canvas.addEventListener('click', function (event) { clicked(event) });
 		var context = canvas.getContext('2d');
-		var color = null;
+		if (version == 'single'){
+			var color = 'black';
+		}
+		else {
+			var color = null;
+		}
 		var started = false;
 		function drawBoard() {
 			var space = 0;
@@ -91,11 +96,11 @@
 					if (x % 2 == y % 2) {
 						if (selected === null) {
 							if (moves[space].length > 0) {
-								context.strokeStyle = '#007BFF';
-								context.lineWidth = 3;
-								//This piece can be moved
-								context.strokeRect(x * 100, y * 100, 100, 100);
-								context.lineWidth = 1;
+									context.strokeStyle = '#007BFF';
+									context.lineWidth = 3;
+									//This piece can be moved
+									context.strokeRect(x * 100, y * 100, 100, 100);
+									context.lineWidth = 1;
 							}
 						}
 						else {
@@ -147,7 +152,7 @@
 			var y = event.pageY - canvas.offsetTop;
 			var pos = Math.floor(Math.floor(x / canvas.scrollWidth * 8) / 2) + Math.floor(y / canvas.scrollHeight * 8) * 4
 			if (selected === null) {
-				if (board[pos] != null) {
+				if (board[pos] != null && moves[pos].length > 0 && version == 'local' || board[pos].split(' ')[0] == color) {
 					console.log('selected: ' + pos)
 					selected = pos;
 					drawBoard();
