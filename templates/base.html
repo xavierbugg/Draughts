@@ -96,11 +96,22 @@
 					if (x % 2 == y % 2) {
 						if (selected === null) {
 							if (moves[space].length > 0) {
+								if (version == 'local' || board[space].split(' ')[0] == color){
 									context.strokeStyle = '#007BFF';
 									context.lineWidth = 3;
-									//This piece can be moved
 									context.strokeRect(x * 100, y * 100, 100, 100);
 									context.lineWidth = 1;
+								}
+								else {
+									context.strokeStyle = 'red';
+									context.fillStyle = 'red';
+									context.lineWidth = 3;
+									context.beginPath();
+									context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
+									context.fill();
+									context.stroke();
+									context.lineWidth = 1;
+								}
 							}
 						}
 						else {
