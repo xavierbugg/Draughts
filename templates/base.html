@@ -1,6 +1,16 @@
 <!DOCTYPE HTML>
 <html lang="en">
-
+<!--
+	Use modal for end message
+	make messages scroll
+	increase message input box when a long message is typed
+	add animations to board
+	add indicators to message sender
+	add badges for messages
+	add navbar
+	carousel with game play
+	progress bar for single player
+-->
 <head>
 	<title>{% if version == 'local' %}Local{% elif version == 'online' %}Online{% else %}Single Player{% endif %} Game</title>
 	<meta charset="utf-8">
@@ -29,8 +39,26 @@
 		</div>
 		<div class="row{% if version == 'online' %} hidden{% endif %}" id='board_row'>
 			<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
+			{% if version == 'online' %}
+				<div id='chat' class='card card-info border-info'>
+					<div class="card-header">
+						<h4 class='card-title'>Chat</h4>
+					</div>
+					<div class="card-body pre-scrollable" id='messages-text'>
+						<h5 class='card-subtitle text-muted'>Talk to your opponent:<br/></h5>
+						<ul class="list-group list-group-flush" id='chatList'></ul>
+					</div>
+					<div class="card-footer">
+						<div class="input-group">
+							<input type="text" class="form-control" id='messageInput' placeholder='Message'>
+							<span class="input-group-append">
+								<button class='btn btn-info rounded-right' id='sendMessage'>Send</button>
+							</span>
+						</div>
+					</div>
+				</div>
+			{% endif %}
 		</div>
-		<div id='info' class='row'></div>
 		{% if version == 'online' %}
 			<div id='findGame'>
 				<div class='row'>
@@ -53,16 +81,16 @@
 		{% endif %}
 	</div>
 </body>
-<script type='text/javascript'>
+<script type='text/javascript' charset="utf-8">
 	$(document).ready(function () {
 		var version = "{{version}}";
 		if (version == 'online'){
-			var socket = io.connect('/online')
+			var socket = io.connect('http://' + document.domain + ':' + location.port+'/online');
 			var rooms = {{ rooms| safe }};
 			var id = {{ id }};
 		}
 		else {
-			var socket = io.connect();
+			var socket = io.connect('http://' + document.domain + ':' + location.port);
 		}
 		var board = ['white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
 		var selected = null;
@@ -77,6 +105,9 @@
 			var color = null;
 		}
 		var started = false;
+		function playAgain(){
+			console.log('play again');
+		}
 		function drawBoard() {
 			var space = 0;
 			// Draw board base
@@ -130,7 +161,12 @@
 								context.fillStyle = 'black';
 							}
 							context.beginPath();
-							context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
+							if ( space === selected){
+								context.arc(x * 100 + 50, y * 100 + 50, 55, 0, 2 * Math.PI);
+							}
+							else {
+								context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
+							}
 							context.fill();
 							context.stroke();
 							if (board[space].split(' ')[1] == 'king') {
@@ -164,21 +200,18 @@
 			var pos = Math.floor(Math.floor(x / canvas.scrollWidth * 8) / 2) + Math.floor(y / canvas.scrollHeight * 8) * 4
 			if (selected === null) {
 				if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].split(' ')[0] == color)) {
-					console.log('selected: ' + pos)
 					selected = pos;
 					drawBoard();
 				}
 
 			}
 			else {
-				console.log('Making move from ' + selected + ' to ' + pos);
-				socket.emit('move request', { current_pos: selected, new_pos: pos });
+				socket.emit('move_request', { current_pos: selected, new_pos: pos });
 				selected = null;
 			}
 
 		}
-		socket.on('game end', function (data) {
-			console.log('game end', data);
+		socket.on('game_end', function (data) {
 			var message;
 			if (data.result == 'black') {
 				message = 'Black Wins!';
@@ -189,21 +222,58 @@
 			else {
 				message = 'It\'s a draw';
 			}
-			var display_message = '<div class="alert alert-success alert-dismissible fade show" role="alert"><button type="button" class="close" data-dismiss="alert">&times;</button>' + message + '</div>';
-			$('#info').append(display_message);
+			if (version == 'local' || data.result == color){
+				var extraInfo = "Well done "+data.result+"! You won.\nYou can play again or return to the main menu:";
+			}
+			else if (data.result == 'draw'){
+				var extraInfo = 'Well played - is a draw!\nYou can play again or return to the main menu:';
+			}
+			else{
+				var extraInfo = 'Unlucky, you lost this game :(\nYou can play again or return to the main menu:'
+			}
+			$('body').prepend(
+				$('<div/>', {class: 'alert alert-primary alert-dismissible fade show alert-end', role: "alert"}).append(
+					$('<button />', {type: 'button', class: 'close', "data-dismiss": 'alert'}).append('<span aria-hidden="true">&times;</span>'),
+					$('<p/>').text(message),
+					$('<hr>'),
+					$('<p/>').text(extraInfo),
+					$('<div />', {class: 'btn-group'}).append(
+						$('<a />', {type: 'button', class: 'btn btn-primary', text: "Home", href: "{{ url_for('index') }}"}),
+						$('<button />', {type: 'button', class: 'btn btn-primary', text: "Play again", click: function () { playAgain(); }})
+						
+					)
+					
+
+				)
+			);
+			
+			
+
 		});
-		socket.on('move data', function (data) {
+		socket.on('move_data', function (data) {
 			moves = data.moves;
 			drawBoard();
 		});
-		socket.on('move response', function (data, from, to) {
+		socket.on('move_response', function (data, from, to) {
 			if (data.result === true) {
 				board = data.board;
 				moves = data.moves;
 			}
 			drawBoard();
 		});
-		socket.on('start game', function (data) {
+		socket.on('start_game', function (data) {
+			$(document).on('click', '#sendMessage', function () {
+				console.log('message send');
+				socket.emit('message', $('#messageInput').val())
+				$('#chatList').append(
+					$('<li/>', {
+						class: 'list-group-item your-message',
+						text: $('#messageInput').val()
+					})
+				);
+				$('#messageInput').val('');
+				 
+			});
 			$('#findGame').toggleClass('hidden');
 			$('.lead').toggleClass('hidden');
 			$('#board_row').toggleClass('hidden');
@@ -219,19 +289,17 @@
 			}
 			drawBoard();
 		});
-		socket.on('room close', function (room) {
-        $('button#' + room).parent().parent().remove();
+		socket.on('room_close', function (room) {
+        $('button[id="'+room+'"]').parent().parent().remove();
     });
-		socket.on('add room', function (room) {
-
-			console.log('New room ' + room.name);
+		socket.on('add_room', function (room) {
 			var element;
 			if (room.creator == id) {
 				element = $('<button/>', {
 					text: 'Cancel',
 					class: 'btn btn-primary',
 					id: room.name,
-					click: function () { socket.emit('cancel game', this.id) }
+					click: function () { socket.emit('cancel_game', this.id) }
 				});
 			}
 			else {
@@ -239,13 +307,22 @@
 					text: 'Join ',
 					class: "btn btn-primary",
 					id: room.name,
-					click: function () { socket.emit('join room', this.id) }
+					click: function () { socket.emit('join_game', this.id) }
 				});
 			}
 			$('table').append(
 				$('<tr></tr>').append(
 					$('<td></td>').text(room.name), $('<td></td').append(element)
 				)
+			)
+		});
+		socket.on('message', function(message){
+			console.log('message recieved');
+			$('#chatList').append(
+				$('<li/>', {
+					class: 'list-group-item other-message',
+					text: message
+				})
 			)
 		});
 		function startUp(){
@@ -258,18 +335,18 @@
 									text: 'Join ',
 									class: "btn btn-primary",
 									id: rooms[i],
-									click: function () { socket.emit('join room', this.id) }
+									click: function () { socket.emit('join_game', this.id) }
 								}
 								)
 							)
 						)
 					);
 				}
-				$(document).on('click', '#createGame', function () { socket.emit('create room', $('#nameInput').val()) });
+				$(document).on('click', '#createGame', function () { socket.emit('create_game', $('#nameInput').val()) });
 			}
 			else {
 				socket.on('connect', function () {
-					socket.emit('request move data');
+					socket.emit('request_move_data');
 				});
 				drawBoard();
 			}

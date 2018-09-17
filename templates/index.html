@@ -1,45 +1,46 @@
 <!DOCTYPE HTML>
-<!--Use bootstrap cards for player info-->
-<!--Carosel with game play?-->
 <html lang="en">
-    <head>
-        <title>Draughts</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <div class="row">
-                <h1 class="display-3">Draughts Game</h1>
-            </div>
-            <div class='row'>
-                <p class='lead'>Play Draughts against the computer or another person locally or online</p>
-            </div>
-            <div class='row'>
+
+<head>
+    <title>Draughts</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <h1 class="display-3">Draughts Game</h1>
+        </div>
+        <div class='row'>
+            <p class='lead'>Play Draughts against the computer or another person locally or online</p>
+        </div>
+        <div class='row'>
+            <div class='btn-group'>
+                <a class='btn btn-primary' data-toggle='tooltip' data-placement='bottom' title='Play against the computer' id='1p_button'
+                    href='{{ url_for("game", version="single") }}'>1 Player</a>
                 <div class='btn-group'>
-                        <a class='btn btn-primary' data-toggle ='tooltip' data-placement='bottom' 
-                            title='Play against the computer' id='1p_button' href='{{ url_for("game", version="single") }}'>1 Player</a>
-                        <div class='btn-group'>
-                            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" data-toggle="tooltip" data-placement="right"
-                                    title="Play against another person online" id='2p_online_button' href='{{ url_for("online_game") }}'>Online</a>
-                                <a class="dropdown-item" data-toggle="tooltip" data-placement="right"
-                                    title='Play against someone on the same device' id='2p_local_button' href='{{ url_for("game", version="local") }}'>Local</a>
-                     
-                        </div>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">2 Player</button>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" data-toggle="tooltip" data-placement="right" title="Play against another person online" id='2p_online_button'
+                            href='{{ url_for("game", version="online") }}'>Online</a>
+                        <a class="dropdown-item" data-toggle="tooltip" data-placement="right" title='Play against someone on the same device' id='2p_local_button'
+                            href='{{ url_for("game", version="local") }}'>Local</a>
                     </div>
                 </div>
             </div>
         </div>
-    </body>
-    <script type="text/javascript">
-            $(document).ready(function(){
-                $('[data-toggle="tooltip"]').tooltip();
-            });
-    </script>
+    </div>
+    </div>
+</body>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[data-toggle="tooltip"]').tooltip();
+    });
+</script>
+
 </html>
