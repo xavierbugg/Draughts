@@ -1,5 +1,4 @@
 <!DOCTYPE HTML>
-
 <html lang="en">
 <!--
 	Use modal for end message
@@ -97,10 +96,6 @@
 		var selected = null;
 		var moves = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
 		var canvas = $('#game_board')[0];
-		canvas.addEventListener('mousedown', function (event) { mouseDown(event) });
-		canvas.addEventListener('mouseup', function(event){ mouseUp(event)});
-		canvas.addEventListener('mousemove', function(event){ if(selected != null){ updateBoard(event) }});
-
 		var context = canvas.getContext('2d');
 		if (version == 'single'){
 			var color = 'black';
@@ -199,7 +194,6 @@
 			var pos = Math.floor(Math.floor(x / canvas.scrollWidth * 8) / 2) + Math.floor(y / canvas.scrollHeight * 8) * 4
 			if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].split(' ')[0] == color)) {
 				selected = pos;
-				drawBoard();
 			}
 		};
 		function mouseUp(event){
@@ -356,6 +350,9 @@
 				drawBoard();
 			}
 		};
+		canvas.addEventListener('mousedown', function (event) { mouseDown(event) });
+		canvas.addEventListener('mouseup', function(event){ mouseUp(event)});
+		canvas.addEventListener('mousemove', function(event){ if(selected != null){ updateBoard(event) }});
 		startUp();
 	})
 </script> 
