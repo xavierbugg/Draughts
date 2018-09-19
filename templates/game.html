@@ -229,12 +229,15 @@
 				var x = event.pageX - canvas.offsetLeft;
 				var y = event.pageY - canvas.offsetTop;
 			}
+			selected = null;
 			var pos = Math.floor(x / canvas.scrollWidth * 8) + Math.floor(y / canvas.scrollHeight * 8) * 8
 			if (pos % 2 ==  Math.floor(y / canvas.scrollHeight * 8) % 2) {
 				pos = Math.floor(pos / 2);
 				socket.emit('move_request', { current_pos: selected, new_pos: pos });
 			}
-			selected = null;
+			else{
+				drawBoard();
+			}
 
 		};
 		socket.on('game_end', function (data) {
