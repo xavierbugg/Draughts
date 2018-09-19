@@ -162,7 +162,6 @@
 									var _x = Math.round((event.pageX - canvas.offsetLeft)/canvas.scrollWidth*800);
 									var _y = Math.round((event.pageY - canvas.offsetTop)/canvas.scrollHeight*800);
 								}
-								console.log(_x, _y);
 								context.arc(_x, _y, 55, 0, 2 * Math.PI);
 								context.fill();
 								context.stroke();
@@ -232,6 +231,7 @@
 			}
 			var pos = Math.floor(x / canvas.scrollWidth * 8) + Math.floor(y / canvas.scrollHeight * 8) * 8
 			if (pos % 2 ==  Math.floor(y / canvas.scrollHeight * 8) % 2) {
+				pos = Math.floor(pos / 2);
 				socket.emit('move_request', { current_pos: selected, new_pos: pos });
 			}
 			selected = null;
