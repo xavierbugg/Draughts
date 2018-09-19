@@ -155,12 +155,12 @@
 							context.beginPath();
 							if ( space === selected){
 								if (version == 'online' && color == 'white'){
-									var _x = (canvas.scrollWidth - (event.pageX - canvas.offsetLeft));
-									var _y = (canvas.scrollHeight - (event.pageY - canvas.offsetTop));
+									var _x = (canvas.scrollWidth - (event.pageX - canvas.offsetLeft))/canvas.scrollWidth*800;
+									var _y = (canvas.scrollHeight - (event.pageY - canvas.offsetTop))/canvas.scrollHeight*800;
 								}
 								else {
-									var _x = (event.pageX - canvas.offsetLeft);
-									var _y = (event.pageY - canvas.offsetTop);
+									var _x = (event.pageX - canvas.offsetLeft)/canvas.scrollWidth*800;
+									var _y = (event.pageY - canvas.offsetTop)/canvas.scrollHeight*800;
 								}
 								console.log(_x, _y);
 								context.arc(_x, _y, 55, 0, 2 * Math.PI);
