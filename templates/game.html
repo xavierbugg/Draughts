@@ -154,12 +154,18 @@
 							}
 							context.beginPath();
 							if ( space === selected){
-								var center = [event.x, event.y];
-								context.arc(center[0] * 100 + 50, center[1] * 100 + 50, 55, 0, 2 * Math.PI);
+								if (version == 'online' && color == 'white'){
+									var x = canvas.scrollWidth - (event.pageX - canvas.offsetLeft);
+									var y = canvas.scrollHeight - (event.pageY - canvas.offsetTop);
+								}
+								else {
+									var x = event.pageX - canvas.offsetLeft;
+									var y = event.pageY - canvas.offsetTop;
+								}
+								context.arc(x * 100 + 50, y * 100 + 50, 55, 0, 2 * Math.PI);
 							}
 							else {
-								var center = [x, y];
-								context.arc(center[0] * 100 + 50, center[1] * 100 + 50, 45, 0, 2 * Math.PI);
+								context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
 							}
 							context.fill();
 							context.stroke();
@@ -173,7 +179,7 @@
 								}
 								context.textAlign = 'center';
 								context.textBaseline = 'middle';
-								context.fillText('K', center[0] * 100 + 50, center[1] * 100 + 50);
+								context.fillText('K', x * 100 + 50, y * 100 + 50);
 							}
 						}
 						space++;
