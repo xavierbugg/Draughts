@@ -5,8 +5,8 @@
     margin: auto;
     display: block;
 }
-#messages-text{
-    max-height: 100%;
+#chat{
+    max-width: 30%;
 }
 
 .alert-end {
