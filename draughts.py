@@ -512,7 +512,7 @@ def game(version):
         session['move_list'] = []
         session['board'] = list(start_board)
     session['version'] = version
-    return render_template('base.html', version=version, id=_id, rooms=json.dumps([room.name for room in rooms]))
+    return render_template('game.html', version=version, id=_id, rooms=json.dumps([room.name for room in rooms]))
 
 
 if __name__ == '__main__':
