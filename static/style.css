@@ -22,7 +22,7 @@
         height:306px;
     }
     #chat {
-        height: 306px;
+        max-height: 306px;
     }
 }
 @media (min-width: 576px) and (min-height: 576px){
@@ -31,7 +31,7 @@
         height:562px;
     }
     #chat {
-        height: 562px;
+        max-height: 562px;
     }
 }
 @media (min-width: 768px) and (min-height: 768px){
@@ -40,7 +40,7 @@
         height:746px;
     }
     #chat {
-        height: 746px;
+        max-height: 746px;
     }
 }
 @media (min-width: 1024px) and (min-height: 1024px){
@@ -49,7 +49,7 @@
         height:1002px;
     }
     #chat {
-        height: 1002px;
+        max-height: 1002px;
     }
 }
 .hidden
