@@ -153,32 +153,7 @@
 								context.fillStyle = 'black';
 							}
 							context.beginPath();
-							if ( space === selected){
-								if (version == 'online' && color == 'white'){
-									var _x = Math.round((canvas.scrollWidth - (event.pageX - canvas.offsetLeft))/canvas.scrollWidth*800);
-									var _y = Math.round((canvas.scrollHeight - (event.pageY - canvas.offsetTop))/canvas.scrollHeight*800);
-								}
-								else {
-									var _x = Math.round((event.pageX - canvas.offsetLeft)/canvas.scrollWidth*800);
-									var _y = Math.round((event.pageY - canvas.offsetTop)/canvas.scrollHeight*800);
-								}
-								context.arc(_x, _y, 55, 0, 2 * Math.PI);
-								context.fill();
-								context.stroke();
-								if (board[space].split(' ')[1] == 'king') {
-									context.font = "50px Times New Roman";
-									if (board[space].split(' ')[0] == 'black') {
-										context.fillStyle = 'white';
-									}
-									else {
-										context.fillStyle = 'black';
-									}
-									context.textAlign = 'center';
-									context.textBaseline = 'middle';
-									context.fillText('K', _x + 50, _y + 50);
-								}
-							}
-							else {
+							if ( space != selected) {
 								context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
 								context.fill();
 								context.stroke();
@@ -199,6 +174,31 @@
 						}
 						space++;
 					}
+				}
+			}
+			if (event){
+				if (version == 'online' && color == 'white'){
+					var _x = Math.round((canvas.scrollWidth - (event.pageX - canvas.offsetLeft))/canvas.scrollWidth*800);
+					var _y = Math.round((canvas.scrollHeight - (event.pageY - canvas.offsetTop))/canvas.scrollHeight*800);
+				}
+				else {
+					var _x = Math.round((event.pageX - canvas.offsetLeft)/canvas.scrollWidth*800);
+					var _y = Math.round((event.pageY - canvas.offsetTop)/canvas.scrollHeight*800);
+				}
+				context.arc(_x, _y, 55, 0, 2 * Math.PI);
+				context.fill();
+				context.stroke();
+				if (board[space].split(' ')[1] == 'king') {
+					context.font = "50px Times New Roman";
+					if (board[space].split(' ')[0] == 'black') {
+						context.fillStyle = 'white';
+					}
+					else {
+						context.fillStyle = 'black';
+					}
+					context.textAlign = 'center';
+					context.textBaseline = 'middle';
+					context.fillText('K', _x + 50, _y + 50);
 				}
 			}
 		}
