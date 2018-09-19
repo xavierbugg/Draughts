@@ -155,12 +155,12 @@
 							context.beginPath();
 							if ( space === selected){
 								if (version == 'online' && color == 'white'){
-									var _x = (canvas.scrollWidth - (event.pageX - canvas.offsetLeft))/canvas.scrollWidth*800;
-									var _y = (canvas.scrollHeight - (event.pageY - canvas.offsetTop))/canvas.scrollHeight*800;
+									var _x = Math.round((canvas.scrollWidth - (event.pageX - canvas.offsetLeft))/canvas.scrollWidth*800);
+									var _y = Math.round((canvas.scrollHeight - (event.pageY - canvas.offsetTop))/canvas.scrollHeight*800);
 								}
 								else {
-									var _x = (event.pageX - canvas.offsetLeft)/canvas.scrollWidth*800;
-									var _y = (event.pageY - canvas.offsetTop)/canvas.scrollHeight*800;
+									var _x = Math.round((event.pageX - canvas.offsetLeft)/canvas.scrollWidth*800);
+									var _y = Math.round((event.pageY - canvas.offsetTop)/canvas.scrollHeight*800);
 								}
 								console.log(_x, _y);
 								context.arc(_x, _y, 55, 0, 2 * Math.PI);
@@ -213,9 +213,12 @@
 				var y = event.pageY - canvas.offsetTop;
 			}
 			
-			var pos = Math.floor(Math.floor(x / canvas.scrollWidth * 8) / 2) + Math.floor(y / canvas.scrollHeight * 8) * 4
-			if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].split(' ')[0] == color)) {
-				selected = pos;
+			var pos = Math.floor(x / canvas.scrollWidth * 8) + Math.floor(y / canvas.scrollHeight * 8) * 8
+			if (pos % 2 == 0 {
+				pos = Math.floor(pos / 2);
+				if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].split(' ')[0] == color)) {
+					selected = pos;
+				}
 			}
 		};
 		function mouseUp(event){
