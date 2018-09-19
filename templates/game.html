@@ -162,7 +162,7 @@
 									var _x = (event.pageX - canvas.offsetLeft);
 									var _y = (event.pageY - canvas.offsetTop);
 								}
-								context.arc(_x + 50, _y + 50, 55, 0, 2 * Math.PI);
+								context.arc(_x, _y, 55, 0, 2 * Math.PI);
 								context.fill();
 								context.stroke();
 								if (board[space].split(' ')[1] == 'king') {
