@@ -177,6 +177,14 @@
 				}
 			}
 			if (event){
+				context.strokeStyle = 'black';
+				if (board[selected].split(' ')[0] == 'white') {
+					context.fillStyle = 'white';
+				}
+				else {
+					context.fillStyle = 'black';
+				}
+				context.beginPath();
 				if (version == 'online' && color == 'white'){
 					var _x = Math.round((canvas.scrollWidth - (event.pageX - canvas.offsetLeft))/canvas.scrollWidth*800);
 					var _y = Math.round((canvas.scrollHeight - (event.pageY - canvas.offsetTop))/canvas.scrollHeight*800);
