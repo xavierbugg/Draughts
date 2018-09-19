@@ -188,9 +188,9 @@
 				context.arc(_x, _y, 55, 0, 2 * Math.PI);
 				context.fill();
 				context.stroke();
-				if (board[space].split(' ')[1] == 'king') {
+				if (board[selected].split(' ')[1] == 'king') {
 					context.font = "50px Times New Roman";
-					if (board[space].split(' ')[0] == 'black') {
+					if (board[selected].split(' ')[0] == 'black') {
 						context.fillStyle = 'white';
 					}
 					else {
