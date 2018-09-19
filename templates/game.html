@@ -284,6 +284,8 @@
 			drawBoard();
 		});
 		socket.on('move_response', function (data, from, to) {
+			console.log('response ');
+			console.log(data.result);
 			if (data.result === true) {
 				board = data.board;
 				moves = data.moves;
