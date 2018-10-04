@@ -394,6 +394,12 @@
 		canvas.addEventListener('mousedown', function (event) { mouseDown(event) });
 		canvas.addEventListener('mouseup', function(event){ mouseUp(event)});
 		canvas.addEventListener('mousemove', function(event){ if(selected != null){ drawBoard(event) }});
+		canvas.addEventListener('touchstart', function (event) { event.preventDefault(); mouseDown(event) });
+		canvas.addEventListener('touchend', function(event){ event.preventDefault(); mouseUp(event)});
+		canvas.addEventListener('touchmove', function(event){
+			event.preventDefault();
+			if(selected != null){ drawBoard(event) }
+		});
 		startUp();
 	})
 </script> 
