@@ -92,11 +92,26 @@
 		else {
 			var socket = io.connect('https://' + document.domain + ':' + location.port);
 		}
-		var board = ['white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', 'white man', null, null, null, null, null, null, null, null, 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man', 'black man'];
+		var board = [];
+		var display_board = [];
+		var i;
+		for (i=0; i < 12; i++){
+			board.push({color: 'white', type: 'man'});
+			display_board.push({color: 'white', type: 'man'});
+		}
+		for (i=0; i< 8; i++){
+			board.push(null);
+			display_board.push(null);
+		}
+		for (i=0; i<12; i++){
+			board.push({color: 'black', type: 'man'});
+			display_board.push({color: 'black', type: 'man'});
+		}
 		var selected = null;
 		var moves = [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []];
 		var canvas = $('#game_board')[0];
 		var context = canvas.getContext('2d');
+		var animation_list = [];
 		if (version == 'single'){
 			var color = 'black';
 		}
@@ -105,7 +120,7 @@
 		}
 		var started = false;
 		function playAgain(){
-			console.log('play again');
+			window.location.reload()
 		}
 		function drawBoard(event) {
 			var space = 0;
@@ -125,8 +140,8 @@
 				for (var x = 0; x < 8; x++) {
 					if (x % 2 == y % 2) {
 						if (selected === null) {
-							if (moves[space].length > 0) {
-								if (version == 'local' || board[space].split(' ')[0] == color){
+							if (moves[space].length > 0 && !animation_list.length) {
+								if (version == 'local' || display_board[space].color == color){
 									context.strokeStyle = '#007BFF';
 								}
 								else {
@@ -139,27 +154,26 @@
 						}
 						else {
 							if (moves[selected].indexOf(space) >= 0) {
-								// piece can move to here
 								context.fillStyle = '#007BFF';
 								context.fillRect(x * 100, y * 100, 100, 100);
 							}
 						}
-						if (board[space] != null) {
+						if (display_board[space] != null) {
 							context.strokeStyle = 'black';
-							if (board[space].split(' ')[0] == 'white') {
+							if (display_board[space].color == 'white') {
 								context.fillStyle = 'white';
 							}
 							else {
 								context.fillStyle = 'black';
 							}
 							context.beginPath();
-							if ( space != selected) {
+							if (space != selected) {
 								context.arc(x * 100 + 50, y * 100 + 50, 45, 0, 2 * Math.PI);
 								context.fill();
 								context.stroke();
-								if (board[space].split(' ')[1] == 'king') {
+								if (display_board[space].type == 'king') {
 									context.font = "50px Times New Roman";
-									if (board[space].split(' ')[0] == 'black') {
+									if (display_board[space].color == 'black') {
 										context.fillStyle = 'white';
 									}
 									else {
@@ -170,7 +184,7 @@
 									context.fillText('K', x * 100 + 50, y * 100 + 50);
 								}
 							}
-							
+
 						}
 						space++;
 					}
@@ -178,7 +192,7 @@
 			}
 			if (event){
 				context.strokeStyle = 'black';
-				if (board[selected].split(' ')[0] == 'white') {
+				if (display_board[selected].color == 'white') {
 					context.fillStyle = 'white';
 				}
 				else {
@@ -196,9 +210,9 @@
 				context.arc(_x, _y, 55, 0, 2 * Math.PI);
 				context.fill();
 				context.stroke();
-				if (board[selected].split(' ')[1] == 'king') {
+				if (display_board[selected].type == 'king') {
 					context.font = "50px Times New Roman";
-					if (board[selected].split(' ')[0] == 'black') {
+					if (display_board[selected].color == 'black') {
 						context.fillStyle = 'white';
 					}
 					else {
@@ -208,6 +222,48 @@
 					context.textBaseline = 'middle';
 					context.fillText('K', _x, _y);
 				}
+			}
+			else if (animation_list.length){
+				animation_list[0].progress  += 2
+				if (animation_list[0].progress >= 100){
+					if (animation_list.length == 1){
+						display_board[animation_list[0].end] = animation_list[0].piece;
+					}
+					if (animation_list[0].jumped != null){
+						display_board[animation_list[0].jumped] = null;
+					}
+					animation_list.shift();
+					drawBoard();
+				}
+				else {
+					context.strokeStyle = 'black';
+					if (animation_list[0].piece.color == 'white') {
+						context.fillStyle = 'white';
+					}
+					else {
+						context.fillStyle = 'black';
+					}
+					context.beginPath();
+					var x = animation_list[0].from[0] + (animation_list[0].to[0] - animation_list[0].from[0] )/100 * animation_list[0].progress;
+					var y = animation_list[0].from[1] + (animation_list[0].to[1] - animation_list[0].from[1] )/100 * animation_list[0].progress;
+					var radius = Math.floor((50 - Math.abs(animation_list[0].progress- 50)) / 10 ) + 50
+					context.arc(x, y, radius, 0, 2 * Math.PI);
+					context.fill();
+					context.stroke();
+					if (animation_list[0].piece.type == 'king') {
+						context.font = "50px Times New Roman";
+						if (animation_list[0].piece.color == 'black') {
+							context.fillStyle = 'white';
+						}
+						else {
+							context.fillStyle = 'black';
+						}
+						context.textAlign = 'center';
+						context.textBaseline = 'middle';
+						context.fillText('K', x, y);
+					}
+				}
+
 			}
 		}
 		function mouseDown(event){
@@ -219,11 +275,11 @@
 				var x = event.pageX - canvas.offsetLeft;
 				var y = event.pageY - canvas.offsetTop;
 			}
-			
+
 			var pos = Math.floor(x / canvas.scrollWidth * 8) + Math.floor(y / canvas.scrollHeight * 8) * 8
 			if (pos % 2 ==  Math.floor(y / canvas.scrollHeight * 8) % 2) {
 				pos = Math.floor(pos / 2);
-				if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].split(' ')[0] == color)) {
+				if (board[pos] != null && moves[pos].length > 0 && (version == 'local' || board[pos].color == color)) {
 					selected = pos;
 				}
 			}
@@ -237,7 +293,7 @@
 				var x = event.pageX - canvas.offsetLeft;
 				var y = event.pageY - canvas.offsetTop;
 			}
-			var pos = Math.floor(x / canvas.scrollWidth * 8) + Math.floor(y / canvas.scrollHeight * 8) * 8
+			var pos = Math.floor(x / canvas.scrollWidth * 8) + Math.floor(y / canvas.scrollHeight * 8) * 8;
 			if (pos % 2 ==  Math.floor(y / canvas.scrollHeight * 8) % 2) {
 				pos = Math.floor(pos / 2);
 				socket.emit('move_request', { current_pos: selected, new_pos: pos });
@@ -278,26 +334,33 @@
 					$('<div />', {class: 'btn-group'}).append(
 						$('<a />', {type: 'button', class: 'btn btn-primary', text: "Home", href: "{{ url_for('index') }}"}),
 						$('<button />', {type: 'button', class: 'btn btn-primary', disabled: true, text: "Play again", click: function () { playAgain(); }})
-						
+
 					)
-					
+
 
 				)
 			);
-			
-			
+
+
 
 		});
 		socket.on('move_data', function (data) {
 			moves = data.moves;
 			drawBoard();
 		});
-		socket.on('move_response', function (data, from, to) {
-			console.log('response ');
-			console.log(data.result);
+		socket.on('move_response', function (data) {
 			if (data.result === true) {
 				board = data.board;
 				moves = data.moves;
+				if ((version == 'single' && board[data.to].color == 'white') || (version == 'online' && board[data.to].color != color)){
+					display_board[data.from] = null;
+					var from = [( (data.from%4) * 2 + Math.floor(data.from/4) %2 )*100+50, (Math.floor(data.from / 4) )*100+50];
+					var to = [( (data.to%4) * 2 + Math.floor(data.to/4) %2 )*100+50, (Math.floor(data.to / 4) )*100+50];
+					animation_list.push({to: to, from: from, piece: {color: board[data.to].color, type: board[data.to].type}, progress: 0, jumped: data.jumped, end: data.to});
+				}
+				else {
+					display_board = data.board;
+				}
 			}
 			drawBoard();
 		});
@@ -312,7 +375,7 @@
 					})
 				);
 				$('#messageInput').val('');
-				 
+
 			});
 			$('#findGame').toggleClass('hidden');
 			$('.lead').toggleClass('hidden');
@@ -385,6 +448,7 @@
 				$(document).on('click', '#createGame', function () { socket.emit('create_game', $('#nameInput').val()) });
 			}
 			else {
+				console.log('starting up');
 				socket.on('connect', function () {
 					socket.emit('request_move_data');
 				});
@@ -401,7 +465,13 @@
 			if(selected != null){ drawBoard(event) }
 		});
 		startUp();
+		function animation_loop(){
+			if (animation_list.length){
+				drawBoard();
+			}
+		}
+		setInterval(animation_loop, 1);
 	})
-</script> 
+</script>
 
 </html>

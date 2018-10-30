@@ -93,6 +93,29 @@ def get_possible_moves(board, move_list, color, moves=BASE_MOVES):
                 possible_moves.append([i, new_pos])
     return possible_moves
 
+def get_jumped_pos(current, new):
+        if  current// 4 % 2 == 0:
+            if current - new == 9:
+                return current-5
+            elif current - new == 7:
+                return current-4
+            elif current - new == -9:
+                return current+4
+            elif current - new == -7:
+                return current+3
+            else:
+                return None
+        else:
+            if current-new == 9:
+                return current-4
+            elif current-new == 7:
+                return current-3
+            elif current-new == -9:
+                return current+5
+            elif current - new == -7:
+                return current+4
+            else:
+                return None
 
 def can_move(board, color, moves=BASE_MOVES):
     for i in range(32):
@@ -239,24 +262,7 @@ def simulate_move(current, new, board):
 
     if move_is_jump(current, new):  # Removes piece jumped over
         # For jump moves starting on a even indexed rows
-        if current // 4 % 2 == 0:
-            if current - new == 9:
-                board[current-5] = None
-            elif current - new == 7:
-                board[current-4] = None
-            elif current - new == -9:
-                board[current+4] = None
-            elif current - new == -7:
-                board[current+3] = None
-        else:
-            if current-new == 9:
-                board[current-4] = None
-            elif current-new == 7:
-                board[current-3] = None
-            elif current-new == -9:
-                board[current+5] = None
-            elif current - new == -7:
-                board[current+4] = None
+        board[get_jumped_pos(current, new)] = None
     return board
 
 
@@ -380,8 +386,7 @@ def make_ai_move(board, move_list):
             session['depth'] += 1
             print('Depth increased to {}'.format(session['depth']))
     make_move(move[0], move[1], board)
-    emit('move_response', {'moves': move_data(board, move_list), 'result': True, 'board': [None if piece is None else [
-         'black man', 'white man', 'black king', 'white king'][piece] for piece in board], 'type': 'ai'})
+    emit('move_response', {'jumped': get_jumped_pos(move[0], move[1]),'to': move[1], 'from': move[0],'moves': move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board], 'type': 'ai'})
     if is_double_jump(board, move_list, WHITE):
         socketio.sleep(0.4)
         make_ai_move(board, move_list)
@@ -413,8 +418,8 @@ class baseGameNamespace(Namespace):
         color = session['board'][current] % 2
         if valid_move(current, new, session['board'], session['move_list'], color) and not (session['version'] == 'single' and color == WHITE):
             make_move(current, new, session['board'])
-            emit('move_response', {'moves': move_data(session['board'], session['move_list']), 'result': True, 'board': [
-                None if piece is None else ['black man', 'white man', 'black king', 'white king'][piece] for piece in session['board']]})
+            emit('move_response', {'jumped': get_jumped_pos(current, new), 'to': new, 'from': current, 'moves': move_data(session['board'], session['move_list']), 'result': True, 'board': [
+                None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in session['board']]})
             socketio.sleep(1)
             if session['version'] == 'single' and not game_has_ended(session['board']) and not is_double_jump(session['board'], session['move_list'], BLACK):
                 make_ai_move(session['board'], session['move_list'])
@@ -477,8 +482,7 @@ class onlineGameNamespace(baseGameNamespace):
             data["new_pos"]), session['color'], session['room'].board, session['room'].move_list
         if valid_move(current, new, board, move_list, color):
             make_move(current, new, board, move_list)
-            emit('move_response', {'moves': move_data(board, move_list), 'result': True, 'board': [None if piece is None else [
-                'black man', 'white man', 'black king', 'white king'][piece] for piece in board]}, room=session['room'].name)
+            emit('move_response', {'jumped': get_jumped_pos(current, new),'to': new, 'from': current, 'moves': move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board]}, room=session['room'].name)
             if game_has_ended(board):
                 result = 'black' if can_move(
                     board, BLACK) else 'white' if can_move(board, WHITE) else 'draw'
