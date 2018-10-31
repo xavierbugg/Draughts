@@ -21,7 +21,7 @@
         width: 306px;
         height:306px;
     }
-    #chat {
+    .card-content {
         max-height: 306px;
     }
 }
@@ -30,7 +30,7 @@
         width: 562px;
         height:562px;
     }
-    #chat {
+    .card-content {
         max-height: 562px;
     }
 }
@@ -39,7 +39,7 @@
         width: 746px;
         height:746px;
     }
-    #chat {
+    .card-content {
         max-height: 746px;
     }
 }
@@ -48,7 +48,7 @@
         width: 1002px;
         height:1002px;
     }
-    #chat {
+    .card-content {
         max-height: 1002px;
     }
 }
