@@ -382,7 +382,7 @@ def make_ai_move(board, move_list):
         t = time.time()-x
         print('Time to find move: ', t)
         print('Time per move: ', t/len(moves))
-        if t / len(moves) < 0.3:
+        if t / len(moves) < 0.1:
             session['depth'] += 1
             print('Depth increased to {}'.format(session['depth']))
     make_move(move[0], move[1], board)

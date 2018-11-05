@@ -13,6 +13,7 @@
     word-break: break-all;
     overflow: scroll;
 }
+
 .alert-end {
     position: fixed;
     display: inline-block;
