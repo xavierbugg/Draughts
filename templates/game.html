@@ -361,7 +361,7 @@
 		});
 		socket.on('start_game', function (data) {
 			$(document).on('click', '#sendMessage', function () {
-				console.log('message send');
+				$("#messages-text").animate({ scrollTop: $("#messages-text").height() }, "fast");
 				socket.emit('message', $('#messageInput').val())
 				$('#chatList').append(
 					$('<li/>', {
