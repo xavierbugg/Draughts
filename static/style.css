@@ -5,6 +5,15 @@
     margin: auto;
     display: block;
 }
+#chat {
+    min-width: 300px;
+    min-height: 300px;
+}
+#messages-text {
+    word-break: break-all;
+    overflow: scroll;
+}
+
 .alert-end {
     position: fixed;
     display: inline-block;

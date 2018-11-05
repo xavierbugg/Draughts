@@ -1,16 +1,5 @@
 <!DOCTYPE HTML>
 <html lang="en">
-<!--
-	Use modal for end message
-	make messages scroll
-	increase message input box when a long message is typed
-	add animations to board
-	add indicators to message sender
-	add badges for messages
-	add navbar
-	carousel with game play
-	progress bar for single player
--->
 <head>
 	<title>{% if version == 'local' %}Local{% elif version == 'online' %}Online{% else %}Single Player{% endif %} Game</title>
 	<meta charset="utf-8">
@@ -38,26 +27,32 @@
 			</p>
 		</div>
 		<div class="row{% if version == 'online' %} hidden{% endif %}" id='board_row'>
-			<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
-			{% if version == 'online' %}
-				<div id='chat' class='card card-info border-info'>
-					<div class="card-header">
-						<h4 class='card-title'>Chat</h4>
-					</div>
-					<div class="card-body pre-scrollable" id='messages-text'>
-						<h5 class='card-subtitle text-muted'>Talk to your opponent:<br/></h5>
-						<ul class="list-group list-group-flush" id='chatList'></ul>
-					</div>
-					<div class="card-footer">
-						<div class="input-group">
-							<input type="text" class="form-control" id='messageInput' placeholder='Message'>
-							<span class="input-group-append">
-								<button type='submit' class='btn btn-info rounded-right' id='sendMessage'>Send</button>
-							</span>
+			<div class='d-flex'>
+				<div class='p-2'>
+					<canvas width=800 height=800 id='game_board' class='border border-dark rounded'></canvas>
+				</div>
+				{% if version == 'online' %}
+					<div class='p-2'>
+						<div id='chat' class='card card-info border-info h-100'>
+							<div class="card-header">
+								<h4 class='card-title'>Chat</h4>
+							</div>
+							<div class="card-body h-100 mh-100" id='messages-text'>
+								<h5 class='card-subtitle text-muted'>Talk to your opponent:<br/></h5>
+								<ul class="list-group list-group-flush" id='chatList'></ul>
+							</div>
+							<div class="card-footer">
+								<div class="input-group">
+									<input type="text" class="form-control" id='messageInput' placeholder='Message'>
+									<span class="input-group-append">
+										<button type='submit' class='btn btn-info rounded-right' id='sendMessage'>Send</button>
+									</span>
+								</div>
+							</div>
 						</div>
 					</div>
-				</div>
-			{% endif %}
+				{% endif %}
+			</div>
 		</div>
 		{% if version == 'online' %}
 			<div id='findGame'>
@@ -366,7 +361,6 @@
 		});
 		socket.on('start_game', function (data) {
 			$(document).on('click', '#sendMessage', function () {
-				console.log('message send');
 				socket.emit('message', $('#messageInput').val())
 				$('#chatList').append(
 					$('<li/>', {
@@ -375,6 +369,9 @@
 					})
 				);
 				$('#messageInput').val('');
+				var wtf    = $('#messages-text');
+				var height = wtf[0].scrollHeight;
+				wtf.scrollTop(height);
 
 			});
 			$('#findGame').toggleClass('hidden');
@@ -420,13 +417,15 @@
 			)
 		});
 		socket.on('message', function(message){
-			console.log('message recieved');
 			$('#chatList').append(
 				$('<li/>', {
 					class: 'list-group-item other-message',
 					text: message
 				})
-			)
+			);
+			var wtf = $('#messages-text');
+			var height = wtf[0].scrollHeight;
+			wtf.scrollTop(height);
 		});
 		function startUp(){
 			if (version == 'online'){
