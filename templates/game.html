@@ -361,7 +361,9 @@
 		});
 		socket.on('start_game', function (data) {
 			$(document).on('click', '#sendMessage', function () {
-				$("#messages-text").animate({ scrollTop: $("#messages-text").height() }, "fast");
+				var wtf    = $('#messages-text');
+				var height = wtf[0].scrollHeight;
+				wtf.scrollTop(height);
 				socket.emit('message', $('#messageInput').val())
 				$('#chatList').append(
 					$('<li/>', {
@@ -415,7 +417,9 @@
 			)
 		});
 		socket.on('message', function(message){
-			$("#messages-text").animate({ scrollTop: $("#messages-text").height() }, "fast");
+			var wtf = $('#messages-text');
+			var height = wtf[0].scrollHeight;
+			wtf.scrollTop(height);
 			$('#chatList').append(
 				$('<li/>', {
 					class: 'list-group-item other-message',
