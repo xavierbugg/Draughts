@@ -1,7 +1,7 @@
 #game_board {
     margin-bottom: 5%;
-    width: 98px;
-    height:98px;
+    width: 306px;
+    height:306px;
     margin: auto;
     display: block;
 }
@@ -20,12 +20,6 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-}
-@media (min-width: 320px) and (min-height:320px){
-    #game_board {
-        width: 306px;
-        height:306px;
-    }
 }
 @media (min-width: 576px) and (min-height: 576px){
     #game_board {
