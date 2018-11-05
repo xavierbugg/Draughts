@@ -361,9 +361,6 @@
 		});
 		socket.on('start_game', function (data) {
 			$(document).on('click', '#sendMessage', function () {
-				var wtf    = $('#messages-text');
-				var height = wtf[0].scrollHeight;
-				wtf.scrollTop(height);
 				socket.emit('message', $('#messageInput').val())
 				$('#chatList').append(
 					$('<li/>', {
@@ -372,6 +369,9 @@
 					})
 				);
 				$('#messageInput').val('');
+				var wtf    = $('#messages-text');
+				var height = wtf[0].scrollHeight;
+				wtf.scrollTop(height);
 
 			});
 			$('#findGame').toggleClass('hidden');
@@ -417,15 +417,15 @@
 			)
 		});
 		socket.on('message', function(message){
-			var wtf = $('#messages-text');
-			var height = wtf[0].scrollHeight;
-			wtf.scrollTop(height);
 			$('#chatList').append(
 				$('<li/>', {
 					class: 'list-group-item other-message',
 					text: message
 				})
-			)
+			);
+			var wtf = $('#messages-text');
+			var height = wtf[0].scrollHeight;
+			wtf.scrollTop(height);
 		});
 		function startUp(){
 			if (version == 'online'){
