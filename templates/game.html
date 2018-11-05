@@ -415,7 +415,7 @@
 			)
 		});
 		socket.on('message', function(message){
-			$('#messages-text').lastChild.scrollIntoView(false);
+			$("#messages-text").animate({ scrollTop: $("#messages-text").height() }, "fast");
 			$('#chatList').append(
 				$('<li/>', {
 					class: 'list-group-item other-message',
