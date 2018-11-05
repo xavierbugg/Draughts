@@ -5,6 +5,9 @@
     margin: auto;
     display: block;
 }
+#chat {
+    min-width: 300px;
+}
 #messages-text {
     word-break: break-all;
     overflow: scroll;
