@@ -5,10 +5,6 @@
     margin: auto;
     display: block;
 }
-#chat{
-    max-width: 30%;
-}
-
 .alert-end {
     position: fixed;
     display: inline-block;
@@ -16,13 +12,12 @@
     top: 50%;
     transform: translate(-50%, -50%);
 }
+
+
 @media (min-width: 320px) and (min-height:320px){
     #game_board {
         width: 306px;
         height:306px;
-    }
-    #main-content {
-        max-height: 306px;
     }
 }
 @media (min-width: 576px) and (min-height: 576px){
@@ -30,26 +25,17 @@
         width: 562px;
         height:562px;
     }
-    #main-content {
-        max-height: 562px;
-    }
 }
 @media (min-width: 768px) and (min-height: 768px){
     #game_board {
         width: 746px;
         height:746px;
     }
-    #main-content {
-        max-height: 746px;
-    }
 }
 @media (min-width: 1024px) and (min-height: 1024px){
     #game_board {
         width: 1002px;
         height:1002px;
-    }
-    #main-content {
-        max-height: 1002px;
     }
 }
 .hidden
