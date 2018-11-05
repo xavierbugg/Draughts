@@ -415,7 +415,7 @@
 			)
 		});
 		socket.on('message', function(message){
-			console.log('message recieved');
+			$('#messages-text').lastChild.scrollIntoView(false);
 			$('#chatList').append(
 				$('<li/>', {
 					class: 'list-group-item other-message',
