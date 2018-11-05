@@ -5,6 +5,12 @@
     margin: auto;
     display: block;
 }
+#chat {
+    word-break: break-all;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    
+}
 .alert-end {
     position: fixed;
     display: inline-block;
