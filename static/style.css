@@ -5,9 +5,6 @@
     margin: auto;
     display: block;
 }
-#chat{
-    max-width: 30%;
-}
 
 .alert-end {
     position: fixed;
