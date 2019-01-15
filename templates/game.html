@@ -327,7 +327,7 @@
 					$('<hr>'),
 					$('<p/>').text(extraInfo),
 					$('<div />', {class: 'btn-group'}).append(
-						$('<a />', {type: 'button', class: 'btn btn-primary', text: "Home", href: "{{ url_for('index') }}"}),
+						$('<a />', {role: 'button', class: 'btn btn-primary', text: "Home", href: "{{ url_for('index') }}"}),
 						$('<button />', {type: 'button', class: 'btn btn-primary', text: "Play again", click: function () { playAgain(); }})
 
 					)
