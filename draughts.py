@@ -5,13 +5,8 @@ import time
 from flask import Flask, render_template, request, session, url_for
 from flask_socketio import Namespace, SocketIO, emit, join_room, leave_room
 
-BLACK, WHITE = 0, 1
-BLACK_MAN, WHITE_MAN, BLACK_KING, WHITE_KING = range(4)
 BASE_DEPTH = 3
-BASE_MOVES, JUMP_MOVES = [3, 4, 5, 7, 9], [7, 9]
 rooms = []
-start_board = [WHITE_MAN if i < 12 else
-               BLACK_MAN if i > 19 else None for i in range(32)]
 
 
 class Room():
@@ -47,14 +42,14 @@ class Draughts():
         return board
 
     def game_has_ended(self, board):# What about draws?
-        return not (self.can_move(board, self.WHITE) and self.can_move(board, self.BLACK))
+        return not (self.can_move(board, self.WHITE, self.BASE_MOVES) and self.can_move(board, self.BLACK, self.BASE_MOVES))
 
 
     def is_double_jump(self, board, move_list, color):
         if not len(move_list):
             return False
         # Bool for if the player can make a double jump
-        if color == self.BLACK and move_list[-1][-1] // 4 == 0 or color == WHITE and move_list[-1][-1] // 4 == 7:
+        if color == self.BLACK and move_list[-1][-1] // 4 == 0 or color == self.WHITE and move_list[-1][-1] // 4 == 7:
             # The last piece to move moved to its back rows
             # If it has just been kinged it can't make a double jump
             positions = [0]
@@ -64,19 +59,19 @@ class Draughts():
             if positions.count(0) == 1:
                 # The piece was just kinged so can't double jump
                 return False
-        return not self.is_turn(color, move_list) and self.piece_can_jump(move_list[-1][-1], board, color) and abs(move_list[-1][0] - move_list[-1][1]) in JUMP_MOVES
+        return not self.is_turn(color, move_list) and self.piece_can_jump(move_list[-1][-1], board, color) and abs(move_list[-1][0] - move_list[-1][1]) in self.JUMP_MOVES
 
     def is_turn(self, color, move_list):
         # Returns if it is the colors turn not considering double jumps on this turn
         return color == len(move_list) % 2
 
-    def piece_can_move(self, piece, board, color, moves=BASE_MOVES):
+    def piece_can_move(self, piece, board, color, moves):
         # Get the moves the piece can make
         if self.is_king(board[piece]):
             possible_moves = moves + [-move for move in moves]
-        elif color == BLACK:
+        elif color == self.BLACK:
             possible_moves = [-move for move in moves]
-        elif color == WHITE:
+        elif color == self.WHITE:
             possible_moves = moves
 
         for move in possible_moves:
@@ -85,16 +80,16 @@ class Draughts():
         return False
 
     def piece_can_jump(self, piece, board, color):
-        return self.piece_can_move(piece, board, color, moves=JUMP_MOVES)
+        return self.piece_can_move(piece, board, color, self.JUMP_MOVES)
 
     def get_piece_moves(self, board, move_list, piece, moves=[3, 4, 5, 7, 9]):
         new_positions = []
         color = self.get_color(board[piece])
         if self.is_king(board[piece]):
             possible_moves = moves + [-move for move in moves]
-        elif color == BLACK:
+        elif color == self.BLACK:
             possible_moves = [-move for move in moves]
-        elif color == WHITE:
+        elif color == self.WHITE:
             possible_moves = moves
         for move in possible_moves:
             if self.valid_move(piece, piece+move, board, move_list, color):
@@ -102,10 +97,10 @@ class Draughts():
         return new_positions
 
 
-    def get_possible_moves(self, board, move_list, color, moves=BASE_MOVES):
+    def get_possible_moves(self, board, move_list, color):
         possible_moves = []
         for i in range(32):
-            if board[i] is not None and board[i] % 2 == color:
+            if board[i] is not None and self.get_color(board[i]) == color:
                 for new_pos in self.get_piece_moves(board, move_list, i):
                     possible_moves.append([i, new_pos])
         return possible_moves
@@ -135,16 +130,16 @@ class Draughts():
             else:
                 return None
 
-    def can_move(self, board, color, moves=BASE_MOVES):
+    def can_move(self, board, color, moves):
         for i in range(32):
-            if board[i] is not None and board[i] % 2 == color:
-                if self.piece_can_move(i, board, color, moves=moves):
+            if board[i] is not None and self.get_color(board[i]) == color:
+                if self.piece_can_move(i, board, color, moves):
                     return True
         return False
 
 
     def can_jump(self, board, color):
-        return self.can_move(board, color, moves=self.JUMP_MOVES)
+        return self.can_move(board, color, self.JUMP_MOVES)
 
 
     def valid_backward_move(self, current, new, board, color):
@@ -154,12 +149,12 @@ class Draughts():
                     return False
                 else:
                     return True
-            elif new - current == 9 and board[current+4] is not None and board[current+4] % 2 != color:
+            elif new - current == 9 and board[current+4] is not None and self.get_color(board[current+4]) != color:
                 if current % 8 == 3:
                     return False
                 else:
                     return True
-            elif new - current == 7 and board[current+3] is not None and board[current+3] % 2 != color:
+            elif new - current == 7 and board[current+3] is not None and self.get_color(board[current+3]) != color:
                 if current % 8 == 0:
                     return False
                 else:
@@ -173,12 +168,12 @@ class Draughts():
                     return False
                 else:
                     return True
-            elif new - current == 9 and board[current+5] is not None and board[current+5] % 2 != color:
+            elif new - current == 9 and board[current+5] is not None and self.get_color(board[current+5]) != color:
                 if current % 8 == 7:
                     return False
                 else:
                     return True
-            elif new - current == 7 and board[current+4] is not None and board[current+4] % 2 != color:
+            elif new - current == 7 and board[current+4] is not None and self.get_color(board[current+4]) != color:
                 if current % 8 == 4:
                     return False
 
@@ -191,10 +186,10 @@ class Draughts():
             if current - new in (4, 5):
                 return not (current % 8 == 0 and current - new == 5)
 
-            elif current - new == 9 and board[current-5] is not None and board[current-5] % 2 != color:
+            elif current - new == 9 and board[current-5] is not None and self.get_color(board[current-5]) != color:
                 return not current % 8 == 0
 
-            elif current - new == 7 and board[current-4] is not None and board[current-4] % 2 != color:
+            elif current - new == 7 and board[current-4] is not None and self.get_color(board[current-4]) != color:
                 return not current % 8 == 3
 
             else:
@@ -204,10 +199,10 @@ class Draughts():
             if current - new in (3, 4):
                 return not (current % 8 == 7 and current - new == 3)
 
-            elif current - new == 9 and board[current-4] is not None and board[current-4] % 2 != color:
+            elif current - new == 9 and board[current-4] is not None and self.get_color(board[current-4]) != color:
                 return not current % 8 == 4
 
-            elif current - new == 7 and board[current-3] is not None and board[current-3] % 2 != color:
+            elif current - new == 7 and board[current-3] is not None and self.get_color(board[current-3]) != color:
                 return not current % 8 == 7
 
             else:
@@ -236,7 +231,7 @@ class Draughts():
         # Returns if a move is valid based on how a piece can jump and the piece in its way
         if 0 <= new < 32 and board[new] is None:# New position is clear and on the board
             color, piece_is_king = self.get_color(board[current]), self.is_king(board[current])
-            if color == BLACK:
+            if color == self.BLACK:
                 if self.valid_forward_move(current, new, board, color):
                     return True
                 else:
@@ -244,7 +239,7 @@ class Draughts():
                         return self.valid_backward_move(current, new, board, color)
                     else:
                         return False
-            elif color == WHITE:
+            elif color == self.WHITE:
                 if self.valid_backward_move(current, new, board, color):
                     return True
                 else:
@@ -258,7 +253,7 @@ class Draughts():
             return False
 
     def move_is_jump(self, current, new):
-        return abs(current - new) in JUMP_MOVES
+        return abs(current - new) in self.JUMP_MOVES
 
     def simulate_move(self, current, new, board):# Move piece to new position and king it if necessary
         color = self.get_color(board[current])
@@ -290,10 +285,10 @@ class BaseDraughtsApp(Draughts):
     def move_data(self, board, move_list):
         if self.is_double_jump(board, move_list, self.get_color(len(move_list)+1)):
             _moves = self.get_possible_moves(
-                board, move_list, (len(move_list)+1) % 2)
+                board, move_list, self.get_color((len(move_list)+1))
         else:
             _moves = self.get_possible_moves(
-                board, move_list, len(move_list) % 2)
+                board, move_list, self.get_color(len(move_list)))
         moves = []
         for x in range(32):
             moves.append([])
@@ -313,11 +308,11 @@ class DraughtsApp(BaseDraughtsApp):
                 if not is_king:
                     if number % 8 in (0, 7):
                         piece_value += 1
-                    if color == WHITE:
+                    if color == self.WHITE:
                         piece_value += 0.05*(number//4)
                     else:
                         piece_value += 0.05*(7-number//4)
-                if color == BLACK:
+                if color == self.BLACK:
                     black_score += piece_value
                 else:
                     white_score += piece_value
@@ -343,9 +338,9 @@ class DraughtsApp(BaseDraughtsApp):
     def minimax(self, depth, move_list, alpha, beta, player):
         board = self.get_board(move_list)
         if self.game_has_ended(board):
-            if self.can_move(board, BLACK):
+            if self.can_move(board, self.BLACK, self.BASE_MOVES):
                 return -9999999
-            elif self.can_move(board, WHITE):
+            elif self.can_move(board, self.WHITE, self.BASE_MOVES):
                 return 9999999
             else:
                 return 0
@@ -355,15 +350,15 @@ class DraughtsApp(BaseDraughtsApp):
             value = -9999999
             for child in self.get_children(move_list, board, player):
                 if self.is_double_jump(self.get_board(child), child, player):
-                    value = max(value, self.minimax(depth, child, alpha, beta, WHITE))
+                    value = max(value, self.minimax(depth, child, alpha, beta, self.WHITE))
 
                 else:
                     if self.move_is_jump(child[-1][-2], child[-1][-1]):
                         value = max(value, self.minimax(
-                            depth, child, alpha, beta, BLACK))
+                            depth, child, alpha, beta, self.BLACK))
                     else:
                         value = max(value, self.minimax(
-                            depth-1, child, alpha, beta, BLACK))
+                            depth-1, child, alpha, beta, self.BLACK))
                 alpha = max(alpha, value)
                 if alpha >= beta:
                     break
@@ -372,14 +367,14 @@ class DraughtsApp(BaseDraughtsApp):
             value = 9999999
             for child in self.get_children(move_list, board, player):
                 if self.is_double_jump(self.get_board(child), child, player):
-                    value = min(value, self.minimax(depth, child, alpha, beta, BLACK))
+                    value = min(value, self.minimax(depth, child, alpha, beta, self.BLACK))
                 else:
                     if self.move_is_jump(child[-1][-2], child[-1][-1]):
                         value = min(value, self.minimax(
-                            depth, child, alpha, beta, WHITE))
+                            depth, child, alpha, beta, self.WHITE))
                     else:
                         value = min(value, self.minimax(
-                            depth-1, child, alpha, beta, WHITE))
+                            depth-1, child, alpha, beta, self.WHITE))
                 beta = min(beta, value)
                 if beta <= alpha:
                     break
@@ -416,7 +411,7 @@ class DraughtsApp(BaseDraughtsApp):
                 print('Depth increased to {}'.format(session['depth']))
         board, move_list = self.make_move(move[0], move[1], board, move_list)
         emit('move_response', {'jumped': self.get_jumped_pos(move[0], move[1]),'to': move[1], 'from': move[0],'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board], 'type': 'ai'})
-        if self.is_double_jump(board, move_list, WHITE):
+        if self.is_double_jump(board, move_list, self.WHITE):
             depth = self.make_ai_move(board, move_list, depth)
         return depth
 
@@ -440,8 +435,8 @@ class baseGameNamespace(Namespace, DraughtsApp):
             if session['version'] == 'single' and not self.game_has_ended(session['board']) and not self.is_double_jump(session['board'], session['move_list'], self.BLACK):
                 session['depth'] = self.make_ai_move(session['board'], session['move_list'], session['depth'])
             if self.game_has_ended(session['board']):
-                result = 'black' if self.can_move(session['board'], self.BLACK) else 'white' if self.can_move(
-                    session['board'], self.WHITE) else 'draw'
+                result = 'black' if self.can_move(session['board'], self.BLACK, self.BASE_MOVES) else 'white' if self.can_move(
+                    session['board'], self.WHITE, self.BASE_MOVES) else 'draw'
                 print('game ended')
                 emit('game_end', {'result': result})
         else:
@@ -471,7 +466,7 @@ class onlineGameNamespace(baseGameNamespace):
         else:
             room = str(name)
         join_room(room)
-        room_strut = Room(room, session['id'], 0, list(start_board), [])
+        room_strut = Room(room, session['id'], 0, list(self.START_BOARD), [])
         rooms.append(room_strut)
         session['room'] = room_strut
         session['color'] = self.BLACK
@@ -501,7 +496,7 @@ class onlineGameNamespace(baseGameNamespace):
             emit('move_response', {'jumped': self.get_jumped_pos(current, new),'to': new, 'from': current, 'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board]}, room=session['room'].name)
             if self.game_has_ended(board):
                 result = 'black' if self.can_move(
-                    board, self.BLACK) else 'white' if self.can_move(board, self.WHITE) else 'draw'
+                    board, self.BLACK, self.BASE_MOVES) else 'white' if self.can_move(board, self.WHITE, self.BASE_MOVES) else 'draw'
                 emit('game_end', {'result': result}, room=session['room'].name)
         else:
             emit('move_response', {'result': False}, room=session['room'].name)
@@ -530,7 +525,7 @@ def game(version):
     else:
         _id = None
         session['move_list'] = []
-        session['board'] = list(start_board)
+        session['board'] = [1 if i < 12 else 0 if i > 19 else None for i in range(32)]
     session['version'] = version
     return render_template('game.html', version=version, id=_id, rooms=json.dumps([room.name for room in rooms]))
 
