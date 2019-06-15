@@ -24,8 +24,8 @@ class Draughts():
     BLACK, WHITE = 0, 1
     BLACK_MAN, WHITE_MAN, BLACK_KING, WHITE_KING = range(4)
     BASE_MOVES, JUMP_MOVES = [3, 4, 5, 7, 9], [7, 9]
-    START_BOARD = [WHITE_MAN if i < 12 else
-                   BLACK_MAN if i > 19 else None for i in range(32)]
+    START_BOARD = [1 if i < 12 else
+                   0 if i > 19 else None for i in range(32)]
 
     def is_king(self, piece):
         return piece // 2
