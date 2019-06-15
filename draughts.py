@@ -8,13 +8,14 @@ from flask_socketio import Namespace, SocketIO, emit, join_room, leave_room
 BLACK, WHITE = 0, 1
 BLACK_MAN, WHITE_MAN, BLACK_KING, WHITE_KING = range(4)
 BASE_DEPTH = 3
-BASE_MOVES, JUMP_MOVES = [3, 4, 5, 7, 9], [7, 9]
+BASE_MOVES, JUMP_MOVES = [3, 4, 5, 7, 9], [7, 9] # The difference in board positions for moves
 rooms = []
 start_board = [WHITE_MAN if i < 12 else
                BLACK_MAN if i > 19 else None for i in range(32)]
 
 
 class Room():
+    # Class for storing the room for a game
     def __init__(self, name, black_id, white_id, board, move_list):
         self.name = name
         self.black_id = black_id
@@ -27,6 +28,7 @@ class Room():
 
 
 def get_board(move_list):
+    # Generates board from move list
     board = start_board[:]
     for move in move_list:
         for i in range(len(move)-1):
@@ -39,17 +41,24 @@ def game_has_ended(board):
 
 
 def is_double_jump(board, move_list, color):
-    if len(move_list) and (color == BLACK and move_list[-1][-1] // 4 == 0 or color == WHITE and move_list[-1][-1] // 4 == 7):
+    if not len(move_list):
+        return False
+    # Bool for if the player can make a double jump
+    if color == BLACK and move_list[-1][-1] // 4 == 0 or color == WHITE and move_list[-1][-1] // 4 == 7:
+        # The last piece to move moved to its back rows
+        # If it has just been kinged it can't make a double jump
         positions = [0]
         for move in move_list[::-1]:
             if move[-1] == positions[-1]:
                 positions += move[:-1][::-1]
         if positions.count(0) == 1:
+            # The piece was just kinged so can't double jump
             return False
-    return len(move_list) and not is_turn(color, move_list) and piece_can_jump(move_list[-1][-1], board, color) and abs(move_list[-1][0] - move_list[-1][1]) in JUMP_MOVES
+    return not is_turn(color, move_list) and piece_can_jump(move_list[-1][-1], board, color) and abs(move_list[-1][0] - move_list[-1][1]) in JUMP_MOVES
 
 
 def is_turn(color, move_list):
+    # Returns if it is the colors turn not considering double jumps on this turn
     return color == len(move_list) % 2
 
 
