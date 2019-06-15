@@ -25,77 +25,6 @@ class Room():
     def is_full(self):
         return bool(self.black_id and self.white_id)
 
-<<<<<<< Updated upstream
-
-def get_board(move_list):
-    board = start_board[:]
-    for move in move_list:
-        for i in range(len(move)-1):
-            board = simulate_move(move[i], move[i+1], board)
-    return board
-
-
-def game_has_ended(board):
-    return not (can_move(board, WHITE) and can_move(board, BLACK))
-
-
-def is_double_jump(board, move_list, color):
-    if len(move_list) and (color == BLACK and move_list[-1][-1] // 4 == 0 or color == WHITE and move_list[-1][-1] // 4 == 7):
-        positions = [0]
-        for move in move_list[::-1]:
-            if move[-1] == positions[-1]:
-                positions += move[:-1][::-1]
-        if positions.count(0) == 1:
-            return False
-    return len(move_list) and not is_turn(color, move_list) and piece_can_jump(move_list[-1][-1], board, color) and abs(move_list[-1][0] - move_list[-1][1]) in JUMP_MOVES
-
-
-def is_turn(color, move_list):
-    return color == len(move_list) % 2
-
-
-def piece_can_move(piece, board, color, moves=BASE_MOVES):
-    if board[piece]//2:
-        possible_moves = moves + [-move for move in moves]
-    elif color == BLACK:
-        possible_moves = [-move for move in moves]
-    elif color == WHITE:
-        possible_moves = moves
-    for move in possible_moves:
-        if valid_basic_move(piece, piece+move, board, color):
-            return True
-    return False
-
-
-def piece_can_jump(piece, board, color):
-    return piece_can_move(piece, board, color, moves=JUMP_MOVES)
-
-
-def get_piece_moves(board, move_list, piece, moves=[3, 4, 5, 7, 9]):
-    new_positions = []
-    color = board[piece] % 2
-    if board[piece]//2:
-        possible_moves = moves + [-move for move in moves]
-    elif color == BLACK:
-        possible_moves = [-move for move in moves]
-    elif color == WHITE:
-        possible_moves = moves
-    for move in possible_moves:
-        if valid_move(piece, piece+move, board, move_list, color):
-            new_positions.append(piece+move)
-    return new_positions
-
-
-def get_possible_moves(board, move_list, color, moves=BASE_MOVES):
-    possible_moves = []
-    for i in range(32):
-        if board[i] is not None and board[i] % 2 == color:
-            for new_pos in get_piece_moves(board, move_list, i):
-                possible_moves.append([i, new_pos])
-    return possible_moves
-
-def get_jumped_pos(current, new):
-=======
 class Draughts():
     BLACK, WHITE = 0, 1
     BLACK_MAN, WHITE_MAN, BLACK_KING, WHITE_KING = range(4)
@@ -183,7 +112,6 @@ class Draughts():
 
     def get_jumped_pos(self, current, new):
         # Gets the position the piece jumped over
->>>>>>> Stashed changes
         if  current// 4 % 2 == 0:
             if current - new == 9:
                 return current-5
@@ -307,27 +235,6 @@ def can_jump(board, color):
             return self.valid_basic_move(current, new, board, color)
 
 
-<<<<<<< Updated upstream
-def valid_basic_move(current, new, board, color):
-    # Returns if a move is valid based on how a piece can jump and the piece in its way
-    # New position is clear and on the board
-    if 0 <= new < 32 and board[new] is None:
-        color, _type = board[current] % 2, board[current]//2
-        if color == BLACK:
-            if valid_forward_move(current, new, board, color):
-                return True
-            else:
-                if _type:
-                    return valid_backward_move(current, new, board, color)
-                else:
-                    return False
-        elif color == WHITE:
-            if valid_backward_move(current, new, board, color):
-                return True
-            else:
-                if _type:
-                    return valid_forward_move(current, new, board, color)
-=======
     def valid_basic_move(self, current, new, board, color):
         # Returns if a move is valid based on how a piece can jump and the piece in its way
         if 0 <= new < 32 and board[new] is None:# New position is clear and on the board
@@ -343,7 +250,6 @@ def valid_basic_move(current, new, board, color):
             elif color == WHITE:
                 if self.valid_backward_move(current, new, board, color):
                     return True
->>>>>>> Stashed changes
                 else:
                     if piece_is_king:
                         return self.valid_forward_move(current, new, board, color)
