@@ -500,9 +500,8 @@ class onlineGameNamespace(baseGameNamespace):
             board, move_list = self.make_move(current, new, board, move_list)
             emit('move_response', {'jumped': self.get_jumped_pos(current, new),'to': new, 'from': current, 'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board]}, room=session['room'].name)
             if self.game_has_ended(board):
-                print('Game ended')
-                result = 'black' if can_move(
-                    board, self.BLACK) else 'white' if can_move(board, self.WHITE) else 'draw'
+                result = 'black' if self.can_move(
+                    board, self.BLACK) else 'white' if self.can_move(board, self.WHITE) else 'draw'
                 emit('game_end', {'result': result}, room=session['room'].name)
         else:
             emit('move_response', {'result': False}, room=session['room'].name)
