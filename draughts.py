@@ -321,7 +321,7 @@ class DraughtsApp(BaseDraughtsApp):
                     black_score += piece_value
                 else:
                     white_score += piece_value
-        return int(white_score / black_score * 1000) + random.randint(-3, 3)
+        return int(white_score / black_score * 1000)
 
 
     def add_move(self, move_list, move):
@@ -388,6 +388,7 @@ class DraughtsApp(BaseDraughtsApp):
 
     def get_best_move(self, move_list, moves, depth):
         best_move, best_value = None, 0
+        values = []
         for move in moves:
             if self.is_double_jump(self.get_board(self.add_move([x for x in move_list], move)), self.add_move([x for x in move_list], move), self.WHITE):
                 color = self.WHITE
@@ -396,9 +397,9 @@ class DraughtsApp(BaseDraughtsApp):
             value = self.minimax(depth, self.add_move(
                 [x for x in move_list], move), -9999999, 9999999, color)
             print(value)
-            if value >= best_value or best_move is None:
-                best_move, best_value = move, value
-        return best_move
+            values.append(value)
+        best_value = max(values)
+        return moves[moves.index(best_value)]
 
     def make_ai_move(self, board, move_list, depth):
         moves = self.get_possible_moves(board, move_list, self.WHITE)
@@ -499,6 +500,7 @@ class onlineGameNamespace(baseGameNamespace):
             board, move_list = self.make_move(current, new, board, move_list)
             emit('move_response', {'jumped': self.get_jumped_pos(current, new),'to': new, 'from': current, 'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board]}, room=session['room'].name)
             if self.game_has_ended(board):
+                print('Game ended')
                 result = 'black' if can_move(
                     board, self.BLACK) else 'white' if can_move(board, self.WHITE) else 'draw'
                 emit('game_end', {'result': result}, room=session['room'].name)
