@@ -285,7 +285,7 @@ class BaseDraughtsApp(Draughts):
     def move_data(self, board, move_list):
         if self.is_double_jump(board, move_list, self.get_color(len(move_list)+1)):
             _moves = self.get_possible_moves(
-                board, move_list, self.get_color((len(move_list)+1))
+                board, move_list, self.get_color(len(move_list)+1))
         else:
             _moves = self.get_possible_moves(
                 board, move_list, self.get_color(len(move_list)))
