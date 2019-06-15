@@ -394,7 +394,7 @@ class DraughtsApp(BaseDraughtsApp):
             print(value)
             values.append(value)
         best_value = max(values)
-        return moves[moves.index(best_value)]
+        return moves[values.index(best_value)]
 
     def make_ai_move(self, board, move_list, depth):
         moves = self.get_possible_moves(board, move_list, self.WHITE)
