@@ -135,19 +135,16 @@ class Draughts():
             else:
                 return None
 
-def can_move(board, color, moves=BASE_MOVES):
-    for i in range(32):
-        if board[i] is not None and board[i] % 2 == color:
-            if piece_can_move(i, board, color):
-                return True
-    return False
+    def can_move(self, board, color, moves=BASE_MOVES):
+        for i in range(32):
+            if board[i] is not None and board[i] % 2 == color:
+                if self.piece_can_move(i, board, color, moves=moves):
+                    return True
+        return False
 
 
-def can_jump(board, color):
-    for i in range(32):
-        if board[i] is not None and board[i] % 2 == color and piece_can_jump(i, board, color):
-            return True
-    return False
+    def can_jump(self, board, color):
+        return self.can_move(board, color, moves=self.JUMP_MOVES)
 
 
     def valid_backward_move(self, current, new, board, color):
