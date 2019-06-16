@@ -10,6 +10,7 @@ rooms = []
 
 
 class Room():
+    # Class for storing the room for a game
     def __init__(self, name, black_id, white_id, board, move_list):
         self.name = name
         self.black_id = black_id
@@ -27,8 +28,10 @@ class Draughts():
     START_BOARD = [1 if i < 12 else
                    0 if i > 19 else None for i in range(32)]
 
+
     def is_king(self, piece):
         return piece // 2
+
 
     def get_color(self, piece):
         return piece % 2
@@ -119,6 +122,7 @@ class Draughts():
 
     def get_jumped_pos(self, current, new):
         # Gets the position the piece jumped over
+
         if  current// 4 % 2 == 0:
             if current - new == 9:
                 return current-5
@@ -541,7 +545,7 @@ def game(version):
         session['move_list'] = []
         session['board'] = [1 if i < 12 else 0 if i > 19 else None for i in range(32)]
     session['version'] = version
-    return render_template('game.html', version=version, id=_id, rooms=json.dumps([room.name for room in rooms]))
+    return render_template('game.html', version=version, id=_id, rooms=json.dumps([room.name for room in rooms if not room.is_full()]))
 
 
 if __name__ == '__main__':
