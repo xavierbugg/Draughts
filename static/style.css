@@ -1,9 +1,22 @@
+.noselect {
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
 #game_board {
     margin-bottom: 5%;
     width: 306px;
     height:306px;
     margin: auto;
     display: block;
+    position: absolute;
+}
+.canvascontainer{
+  width: 306px;
+  height:306px;
 }
 #chat {
     min-width: 300px;
@@ -22,19 +35,19 @@
     transform: translate(-50%, -50%);
 }
 @media (min-width: 576px) and (min-height: 576px){
-    #game_board {
+    #game_board,.canvascontainer {
         width: 562px;
         height:562px;
     }
 }
 @media (min-width: 768px) and (min-height: 768px){
-    #game_board {
+    #game_board,.canvascontainer {
         width: 746px;
         height:746px;
     }
 }
 @media (min-width: 1024px) and (min-height: 1024px){
-    #game_board {
+    #game_board,.canvascontainer {
         width: 1002px;
         height:1002px;
     }
@@ -42,4 +55,9 @@
 .hidden
 {
    display: none;
+}
+
+.boardloading{
+  position: absolute;
+
 }
