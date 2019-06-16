@@ -85,12 +85,12 @@
 	$(document).ready(function () {
 		var version = "{{version}}";
 		if (version == 'online'){
-			var socket = io.connect('http://' + document.domain + ':' + location.port+'/online');
+			var socket = io.connect('https://' + document.domain + ':' + location.port+'/online');
 			var rooms = {{ rooms| safe }};
 			var id = {{ id }};
 		}
 		else {
-			var socket = io.connect('http://' + document.domain + ':' + location.port);
+			var socket = io.connect('https://' + document.domain + ':' + location.port);
 		}
 		var board = [];
 		var display_board = [];
