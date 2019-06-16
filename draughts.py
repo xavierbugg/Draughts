@@ -33,6 +33,18 @@ class Draughts():
     def get_color(self, piece):
         return piece % 2
 
+    def get_turn(self, board, move_list):
+        if self.is_turn(self.BLACK, move_list):
+            if self.is_double_jump(board, move_list, self.WHITE):
+                return self.WHITE
+            else:
+                return self.BLACK
+        else:
+            if self.is_double_jump(board, move_list, self.BLACK):
+                return self.BLACK
+            else:
+                return self.WHITE
+
     def get_board(self, move_list):
         # Generates board from move list
         board = self.START_BOARD[:]
@@ -408,9 +420,9 @@ class DraughtsApp(BaseDraughtsApp):
             print('Time per move: ', t/len(moves))
             if t / len(moves) < 0.1:
                 depth += 1
-                print('Depth increased to {}'.format(session['depth']))
+                print('Depth increased to {}'.format(depth))
         board, move_list = self.make_move(move[0], move[1], board, move_list)
-        emit('move_response', {'jumped': self.get_jumped_pos(move[0], move[1]),'to': move[1], 'from': move[0],'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board], 'type': 'ai'})
+        emit('move_response', {'turn': ['black', 'white'][self.get_turn(board, move_list)],'jumped': self.get_jumped_pos(move[0], move[1]),'to': move[1], 'from': move[0],'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board], 'type': 'ai'})
         if self.is_double_jump(board, move_list, self.WHITE):
             depth = self.make_ai_move(board, move_list, depth)
         return depth
@@ -428,8 +440,8 @@ class baseGameNamespace(Namespace, DraughtsApp):
         current, new = int(data["current_pos"]), int(data["new_pos"])
         color = session['board'][current] % 2
         if self.valid_move(current, new, session['board'], session['move_list'], color) and not (session['version'] == 'single' and color == self.WHITE):
-            self.make_move(current, new, session['board'], session['move_list'])
-            emit('move_response', {'jumped': self.get_jumped_pos(current, new), 'to': new, 'from': current, 'moves': self.move_data(session['board'], session['move_list']), 'result': True, 'board': [
+            board, move_list = self.make_move(current, new, session['board'], session['move_list'])
+            emit('move_response', {'turn': ['black', 'white'][self.get_turn(board, move_list)],'jumped': self.get_jumped_pos(current, new), 'to': new, 'from': current, 'moves': self.move_data(session['board'], session['move_list']), 'result': True, 'board': [
                 None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in session['board']]})
             socketio.sleep(1)
             if session['version'] == 'single' and not self.game_has_ended(session['board']) and not self.is_double_jump(session['board'], session['move_list'], self.BLACK):
@@ -481,11 +493,13 @@ class onlineGameNamespace(baseGameNamespace):
                     join_room(name)
                     session['color'] = self.WHITE
                     session['room'] = room
-                    emit('start_game', {'moves': self.move_data(room.board, room.move_list),
+                    emit('start_game', {'turn': 'black','moves': self.move_data(room.board, room.move_list),
                                         'black': room.black_id, 'white': room.white_id}, room=room.name)
                     break
 
     def on_disconnect(self):
+        print('Game closed', session['room'])
+        emit('message', "###Other player disconnected###", room=session['room'].name, include_self=False)
         self.on_cancel_game(session['room'])
 
     def on_move_request(self, data):
@@ -493,7 +507,7 @@ class onlineGameNamespace(baseGameNamespace):
             data["new_pos"]), session['color'], session['room'].board, session['room'].move_list
         if self.valid_move(current, new, board, move_list, color):
             board, move_list = self.make_move(current, new, board, move_list)
-            emit('move_response', {'jumped': self.get_jumped_pos(current, new),'to': new, 'from': current, 'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board]}, room=session['room'].name)
+            emit('move_response', {'turn': ['black', 'white'][self.get_turn(board, move_list)],'jumped': self.get_jumped_pos(current, new),'to': new, 'from': current, 'moves': self.move_data(board, move_list), 'result': True, 'board': [None if piece is None else [{'color': 'black', 'type': 'man'}, {'color': 'white', 'type': 'man'}, {'color': 'black', 'type': 'king'}, {'color': 'white', 'type': 'king'}][piece] for piece in board]}, room=session['room'].name)
             if self.game_has_ended(board):
                 result = 'black' if self.can_move(
                     board, self.BLACK, self.BASE_MOVES) else 'white' if self.can_move(board, self.WHITE, self.BASE_MOVES) else 'draw'
